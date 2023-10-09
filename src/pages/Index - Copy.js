@@ -80,7 +80,7 @@ function Index(props){
 					<Route path='/shop-login' exact component={Login} />
 					<Route path='/shop-registration' exact component={Registration} />
 					<Route path='/shop-checkout' exact component={ShopCheckout} />
-					<Route path='/books-detail' exact component={ShopDetail} />
+					<Route path='/shop-detail' exact component={ShopDetail} />
 					<Route path='/blog-grid' exact component={BlogGrid} />
 					<Route path='/blog-large-sidebar' exact component={BlogLargeSidebar} />
 					<Route path='/blog-list-sidebar' exact component={BlogListSidebar} />
@@ -117,7 +117,7 @@ function Index(props){
 					<Route path='/shop-login' exact component={Login} />
 					<Route path='/shop-registration' exact component={Registration} />
 					<Route path='/shop-checkout' exact component={ShopCheckout} />
-					<Route path='/books-detail' exact component={ShopDetail} />
+					<Route path='/shop-detail' exact component={ShopDetail} />
 					<Route path='/blog-grid' exact component={BlogGrid} />
 					<Route path='/blog-large-sidebar' exact component={BlogLargeSidebar} />
 					<Route path='/blog-list-sidebar' exact component={BlogListSidebar} />

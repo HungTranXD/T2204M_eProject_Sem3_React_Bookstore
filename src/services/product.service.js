@@ -1,18 +1,18 @@
 import api from './api';
 
-export const getProducts = async (page, pageSize, orderByDescending, search, status) => {
-    const endpoint = 'cause';
+export const getProducts = async (filterCriteria) => {
+    const endpoint = 'product';
     try {
-        const response = await api.get(endpoint, { params: { page, pageSize, orderByDescending, search, status } });
+        const response = await api.post(endpoint, filterCriteria);
         return response.data;
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching filtered products:', error);
         return [];
     }
 }
 
-export const getCauseDetail = async (slug) => {
-    const endpoint = `cause/slug/${slug}`;
+export const getProductDetail = async (slug) => {
+    const endpoint = `product/slug/${slug}`;
     try {
         const response = await api.get(endpoint);
         return response.data;

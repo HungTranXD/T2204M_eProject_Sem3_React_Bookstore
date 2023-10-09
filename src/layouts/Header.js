@@ -15,6 +15,8 @@ import {useCart} from "../contexts/CartContext";
 import {useUser} from "../contexts/UserContext";
 import {useAuth} from "../contexts/AuthContext";
 import {useCategories} from "../contexts/CategoryContext";
+import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
+import {formatCurrency} from "../utils/currencyFormatter";
 
 function Header(){
 	const [selectBtn, setSelectBtn] = useState('Category');
@@ -56,7 +58,7 @@ function Header(){
 	// Menu dropdown list End
 
 	// ---- Cart
-	const { cartState } = useCart();
+	const { cartState, cartDispatch } = useCart();
 	const { cartItems } = cartState;
 
 	// ---- Authentication
@@ -107,53 +109,35 @@ function Header(){
 								<Dropdown as="li" className="nav-item">
 									<Dropdown.Toggle as="button" type="button" className="nav-link box cart-btn i-false">
 										<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-										<span className="badge">5</span>
+										<span className="badge">{cartItems.length}</span>
 									</Dropdown.Toggle>
 									<Dropdown.Menu as="ul" className="dropdown-menu cart-list">
-										<li className="cart-item">
-											<div className="media"> 
-												<div className="media-left"> 
-													<Link to={"books-detail"}> 
-														<img alt="" className="media-object" src={pic1} /> 
-													</Link> 
-												</div> 
-												<div className="media-body"> 
-													<h6 className="dz-title"><Link to={"books-detail"} className="media-heading">Real Life</Link></h6>
-													<span className="dz-price">$28.00</span>
-													<span className="item-close">&times;</span>
-												</div> 
-											</div>
-										</li>
-										<li className="cart-item">
-											<div className="media"> 
-												<div className="media-left"> 
-													<Link to={"books-detail"}> 
-														<img alt="" className="media-object" src={pic2} /> 
-													</Link> 
-												</div> 
-												<div className="media-body"> 
-													<h6 className="dz-title"><Link to={"books-detail"} className="media-heading">Home</Link></h6>
-													<span className="dz-price">$28.00</span>
-													<span className="item-close">&times;</span>
-												</div> 
-											</div>
-										</li>
-										<li className="cart-item">
-											<div className="media"> 
-												<div className="media-left"> 
-													<Link to={"books-detail"}> 
-														<img alt="" className="media-object" src={pic3} /> 
-													</Link> 
-												</div> 
-												<div className="media-body"> 
-													<h6 className="dz-title"><Link to={"books-detail"} className="media-heading">Such a fun age</Link></h6>
-													<span className="dz-price">$28.00</span>
-													<span className="item-close">&times;</span>
-												</div> 
-											</div>
-										</li>
+										{cartItems.map(item =>
+											<li className="cart-item">
+												<div className="media">
+													<div className="media-left">
+														<Link to={"shop-detail"}>
+															<img alt="" className="media-object" src={addAutoWidthTransformation(item.thumbnail)} />
+														</Link>
+													</div>
+													<div className="media-body">
+														<h6 className="dz-title"><Link to={"shop-detail"} className="media-heading">{item.name} <span className="font-14 text-primary fw-normal">x{item.buy_quantity}</span></Link></h6>
+														<span className="dz-price">
+															{formatCurrency(item.price)}
+															<del className="font-12 ps-1" style={{color: "#AAAAAA"}}>{formatCurrency(item.discountAmount)}</del>
+														</span>
+														<span className="item-close">&times;</span>
+													</div>
+												</div>
+											</li>
+										)}
+										{cartItems.length === 0 &&
+											<li className="cart-item text-center">
+												<p>(No items in cart)</p>
+											</li>
+										}
 										<li className="cart-item text-center">
-											<h6 className="text-secondary">Totle = $500</h6>
+											<h6 className="text-secondary">Total = $500</h6>
 										</li>
 										<li className="text-center d-flex">
 											<Link to={"shop-cart"} className="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</Link>

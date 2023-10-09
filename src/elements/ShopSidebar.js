@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Accordion} from 'react-bootstrap';
 
@@ -49,6 +49,7 @@ const accordionBlog2 = [
 
 const ShopSidebar = () =>{
     const categories = useCategories();
+
 
     const renderCategoryCheckboxes = (categories, level = 0) => {
         return categories.map((item) => (

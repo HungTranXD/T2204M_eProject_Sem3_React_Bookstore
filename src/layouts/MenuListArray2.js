@@ -84,7 +84,7 @@ export const MenuListArray2 = [
             },
             {
                 title: 'Shop Detail',
-                to: './books-detail',
+                to: './shop-detail',
             },
             {
                 title: 'Cart',

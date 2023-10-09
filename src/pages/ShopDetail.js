@@ -1,5 +1,5 @@
-import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
 import { Nav, Tab } from 'react-bootstrap';
 //import {Collapse, Dropdown} from 'react-bootstrap';
 
@@ -17,6 +17,12 @@ import profile1 from './../assets/images/profile1.jpg';
 import book15 from './../assets/images/books/grid/book15.jpg';
 import book3 from './../assets/images/books/grid/book3.jpg';
 import book5 from './../assets/images/books/grid/book5.jpg';
+import {useLoading} from "../contexts/LoadingContext";
+import {getProductDetail} from "../services/product.service";
+import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
+import {formatCurrency} from "../utils/currencyFormatter";
+import {useCart} from "../contexts/CartContext";
+import {toast} from "react-toastify";
 
 const tableDetail = [
     {tablehead:'Book Title', tabledata:'Think and Grow Rich'},
@@ -60,7 +66,47 @@ function CommentBlog({title, image}){
 }
 
 function ShopDetail(){
-    const [count, setCount] = useState(0);
+    const [buy_quantity, setBuy_quantity] = useState(1);
+    const { cartDispatch } = useCart();
+
+    const { loadingDispatch } = useLoading();
+    const { slug } = useParams();
+    const [ product, setProduct ] = useState(null);
+
+
+    useEffect(() => {
+        fetchProductBySlug();
+    }, [slug]);
+
+    const fetchProductBySlug = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getProductDetail(slug);
+            setProduct(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+    const handleAddToCart = () => {
+        if (buy_quantity <= 0 || buy_quantity > product.quantity) {
+            toast.error('Not enough quantity!');
+            return;
+        }
+
+        loadingDispatch({type: 'START_LOADING'});
+        // Create a new product object with the selectedGift and buy_quantity
+        const productToAdd = {
+            ...product,
+            buy_quantity: buy_quantity,
+        };
+        // Dispatch the ADD_TO_CART action with the product
+        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
+        toast.success('Add to Cart!');
+        loadingDispatch({type: 'STOP_LOADING'});
+    };
+
     
     return(
         <>
@@ -69,30 +115,42 @@ function ShopDetail(){
                     <div className="container">
                         <div className="row book-grid-row style-4 m-b60">
                             <div className="col">
+                                {product &&
                                 <div className="dz-box">
                                     <div className="dz-media">
-                                        <img src={book16} alt="book" />
+                                        <img src={addAutoWidthTransformation(product.thumbnail)} alt="book" />
                                     </div>
                                     <div className="dz-content">
                                         <div className="dz-header">
-                                            <h3 className="title">Think and Grow Rich</h3>
+                                            <h3 className="title">{product.name}</h3>
                                             <div className="shop-item-rating">
-                                                <div className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
+                                                <div
+                                                    className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
                                                     <ul className="dz-rating">
-                                                        <li><i className="flaticon-star text-yellow"></i></li>	
-                                                        <li><i className="flaticon-star text-yellow"></i></li>	
-                                                        <li><i className="flaticon-star text-yellow"></i></li>	
-                                                        <li><i className="flaticon-star text-yellow"></i></li>		
-                                                        <li><i className="flaticon-star text-muted"></i></li>		
+                                                        <li><i className="flaticon-star text-yellow"></i></li>
+                                                        <li><i className="flaticon-star text-yellow"></i></li>
+                                                        <li><i className="flaticon-star text-yellow"></i></li>
+                                                        <li><i className="flaticon-star text-yellow"></i></li>
+                                                        <li><i className="flaticon-star text-muted"></i></li>
                                                     </ul>
                                                     <h6 className="m-b0">4.0</h6>
                                                 </div>
                                                 <div className="social-area">
                                                     <ul className="dz-social-icon style-3">
-                                                        <li className="me-2"><a  href="https://www.facebook.com/dexignzone" target="_blank" rel="noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
-                                                        <li className="me-2"><a  href="https://twitter.com/dexignzones" target="_blank" rel="noreferrer"><i className="fa-brands fa-twitter"></i></a></li>
-                                                        <li className="me-2"><a  href="https://www.whatsapp.com/" target="_blank" rel="noreferrer"><i className="fa-brands fa-whatsapp"></i></a></li>
-                                                        <li><a href="https://www.google.com/intl/en-GB/gmail/about/" target="_blank" rel="noreferrer"><i className="fa-solid fa-envelope"></i></a></li>
+                                                        <li className="me-2"><a
+                                                            href="https://www.facebook.com/dexignzone"
+                                                            target="_blank" rel="noreferrer"><i
+                                                            className="fa-brands fa-facebook-f"></i></a></li>
+                                                        <li className="me-2"><a
+                                                            href="https://twitter.com/dexignzones" target="_blank"
+                                                            rel="noreferrer"><i
+                                                            className="fa-brands fa-twitter"></i></a></li>
+                                                        <li className="me-2"><a href="https://www.whatsapp.com/"
+                                                                                target="_blank" rel="noreferrer"><i
+                                                            className="fa-brands fa-whatsapp"></i></a></li>
+                                                        <li><a href="https://www.google.com/intl/en-GB/gmail/about/"
+                                                               target="_blank" rel="noreferrer"><i
+                                                            className="fa-solid fa-envelope"></i></a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -102,50 +160,117 @@ function ShopDetail(){
                                                 <ul className="book-info">
                                                     <li>
                                                         <div className="writer-info">
-                                                            <img src={profile2} alt="book" />
+                                                            <img src={addAutoWidthTransformation(product.author.avatar)} alt="book" />
                                                             <div>
-                                                                <span>Writen by</span>Kevin Smiley
+                                                                <span>Writen by</span>{product.author.name}
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li><span>Publisher</span>Printarea Studios</li>
-                                                    <li><span>Year</span>2019</li>
+                                                    <li><span>Publisher</span>{product.publisher.name}</li>
+                                                    <li><span>Year</span>{product.publishYear}</li>
                                                 </ul>
                                             </div>
-                                            <p className="text-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.</p>
-                                            <p className="text-2">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem</p>
+                                            <p className="text-1">{product.description}</p>
+                                            {/*<p className="text-2"></p>*/}
+
                                             <div className="book-footer">
-                                                <div className="price">
-                                                    <h5>$54.78</h5>
-                                                    <p className="p-lr10">$70.00</p>
-                                                </div>
+                                                {product.discountAmount ?
+                                                    <div className="price">
+                                                        <h5>{formatCurrency(product.price - product.discountAmount)}</h5>
+                                                        <p className="p-lr10">{formatCurrency(product.price)}</p>
+                                                    </div>
+                                                :
+                                                    <div className="price">
+                                                        <h5>{formatCurrency(product.price)}</h5>
+                                                    </div>
+                                                }
                                                 <div className="product-num">
-                                                    <div className="quantity btn-quantity style-1 me-3">
-                                                            <button className="btn btn-plus" type="button"                                                                 
-                                                                onClick={() => setCount(count + 1)}
+                                                    {product.quantity > 0 &&
+                                                        <>
+                                                        <div className="quantity btn-quantity style-1 me-3">
+                                                            <button
+                                                                className="btn btn-plus"
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (buy_quantity < product.quantity) {
+                                                                        setBuy_quantity(buy_quantity + 1);
+                                                                    }
+                                                                }}
                                                             >
                                                                 <i className="ti-plus"></i>
                                                             </button>
-                                                            <input className="quantity-input" type="text" value={count} name="demo_vertical2" />
-                                                            <button className="btn btn-minus " type="button"                                                             
-                                                                onClick={() => setCount(count - 1)}
+                                                            <input
+                                                                className="quantity-input"
+                                                                type="text"
+                                                                value={buy_quantity}
+                                                                name="demo_vertical2"
+                                                            />
+                                                            <button
+                                                                className="btn btn-minus"
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (buy_quantity > 1) {
+                                                                        setBuy_quantity(buy_quantity - 1);
+                                                                    }
+                                                                }}
                                                             >
                                                                 <i className="ti-minus"></i>
-                                                            </button> 
-                                                        
-                                                    </div>
-                                                    <Link to={"shop-cart"} className="btn btn-primary btnhover btnhover2"><i className="flaticon-shopping-cart-1"></i> <span>Add to cart</span></Link>
+                                                            </button>
+                                                        </div>
+                                                        <Link onClick={handleAddToCart}
+                                                        className="btn btn-primary btnhover btnhover2"><i
+                                                        className="flaticon-shopping-cart-1"></i>
+                                                        <span>Add to cart</span>
+                                                        </Link>
+                                                        </>
+                                                    }
                                                     <div className="bookmark-btn style-1 d-none d-sm-block">
-                                                        <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
-                                                        <label className="form-check-label" for="flexCheckDefault1">
+                                                        <input className="form-check-input" type="checkbox"
+                                                               id="flexCheckDefault1"/>
+                                                        <label className="form-check-label"
+                                                               htmlFor="flexCheckDefault1">
                                                             <i className="flaticon-heart"></i>
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <table className="table table-borderless mt-4" style={{fontSize: "0.9rem"}}>
+                                                <tbody>
+                                                <tr className="tags border-0" >
+                                                    <th className="p-0 fw-normal">Categories: </th>
+                                                    <td className="p-0">
+                                                        {product.categories.map((c, index) =>
+                                                            <Link key={c.id} to={"#"} className="me-1 text-uppercase fw-bold">{c.name}{index < product.categories.length-1 ? ", " : " "}</Link>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                <tr className="tags border-0" >
+                                                    <th className="p-0 fw-normal">Quantity: </th>
+                                                    <td className="p-0">
+                                                        {product.quantity} product(s)
+                                                    </td>
+                                                </tr>
+                                                <tr className="tags border-0" >
+                                                    <th className="p-0 fw-normal">SKU: </th>
+                                                    <td className="p-0">
+                                                        N/A
+                                                    </td>
+                                                </tr>
+                                                <tr className="tags border-0" >
+                                                    <th className="p-0 fw-normal">Tags: </th>
+                                                    <td className="p-0">
+                                                        {product.tags.map(tag =>
+                                                            <Link to={"#"} className="badge me-1">{tag.name}</Link>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
+                                }
                             </div>
                         </div>
                         <div className="row">
@@ -158,27 +283,9 @@ function ShopDetail(){
                                         </Nav>
                                         <Tab.Content>
                                             <Tab.Pane eventKey="details">
-                                                <table className="table border book-overview">
-                                                    <tbody>
-                                                        {tableDetail.map((data, index)=>(
-                                                            <tr key={index}>
-                                                                <th>{data.tablehead}</th>
-                                                                <td>{data.tabledata}</td>
-                                                            </tr>
-                                                        ))}
-                                                        <tr className="tags">
-                                                            <th>Tags</th>
-                                                            <td>
-                                                                <Link to={"#"} className="badge me-1">Drama</Link>
-                                                                <Link to={"#"} className="badge me-1">Advanture</Link>
-                                                                <Link to={"#"} className="badge me-1">Survival</Link>
-                                                                <Link to={"#"} className="badge me-1">Biography</Link>
-                                                                <Link to={"#"} className="badge me-1">Trending2022</Link>
-                                                                <Link to={"#"} className="badge">Bestseller</Link>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                                {product &&
+                                                    <div dangerouslySetInnerHTML={{ __html: product.detail }} />
+                                                }
                                             </Tab.Pane>
                                             <Tab.Pane eventKey="review">
                                                 <div className="clear" id="comment-list">
