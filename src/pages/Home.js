@@ -28,8 +28,7 @@ const iconBlog = [
 function Index1(){	
 	return(
 		<>
-				
-			<div className="page-content bg-white">		
+			<div className="page-content bg-white">
 				<div className="main-slider style-1"> 
 					<HomeMainSlider />
 				</div>

@@ -2,6 +2,7 @@ import React,{useState} from 'react';
 //import emailjs from '@emailjs/browser';
 import {Link} from 'react-router-dom';
 import Collapse from 'react-bootstrap/Collapse';
+import {useCategories} from "../contexts/CategoryContext";
 //images
 
 //import logo from './../assets/images/logo.png';
@@ -42,6 +43,22 @@ const accordList = [
 function Footer({footerChange, logoImage}){
 	//const [open, setOpen] = useState(false);
 	const [accordBtn, setAccordBtn] = useState();
+	const categories = useCategories();
+
+	function renderCategoriesList(categories) {
+		return (
+			<>
+				{categories.map((category) => (
+					<React.Fragment key={category.id}>
+						<li><Link>{category.name}</Link></li>
+						{category.subCategories.length > 0 &&
+							renderCategoriesList(category.subCategories)}
+					</React.Fragment>
+				))}
+			</>
+		);
+	}
+
 	return(
 		<>
 			<footer className={`site-footer ${footerChange}`}>				
@@ -50,12 +67,17 @@ function Footer({footerChange, logoImage}){
 						<div className="category-toggle">
 							<Link to={"#"} className={`toggle-btn ${accordBtn ? 'active' : ''}`}
 								onClick={() => setAccordBtn(!accordBtn)}
-							>Books categories</Link>
+							>All categories</Link>
 							<div className="toggle-items row">
 								<Collapse in={accordBtn} className="footer-col-book">
 									<ul>
-										{accordList.map((data, ind)=>(
-											<li key={ind}><Link to={"books-grid-view"}>{data.name}</Link></li>
+										{categories.map((category, id)=>(
+											<React.Fragment key={id}>
+												<li className="w-100 fw-bold border-bottom"><Link>{category.name}</Link></li>
+												{category.subCategories.length > 0 &&
+													renderCategoriesList(category.subCategories)}
+											</React.Fragment>
+
 										))}
 									</ul>
 								</Collapse>
