@@ -7,7 +7,7 @@ export const getProducts = async (filterCriteria) => {
         return response.data;
     } catch (error) {
         console.error('Error fetching filtered products:', error);
-        return [];
+        throw error;
     }
 }
 
@@ -19,5 +19,16 @@ export const getProductDetail = async (slug) => {
     } catch (error) {
         console.log(error);
         return {};
+    }
+}
+
+export const getPublishYears = async () => {
+    const endpoint = 'product/publish-years';
+    try {
+        const response = await api.get(endpoint);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching publish years:', error);
+        throw error;
     }
 }

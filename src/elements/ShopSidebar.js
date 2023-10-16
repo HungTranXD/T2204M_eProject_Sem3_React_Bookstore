@@ -1,61 +1,74 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Accordion} from 'react-bootstrap';
 
 import SlideDragable from './SlideDragable';
 import {useCategories} from "../contexts/CategoryContext";
+import {getPublishers} from "../services/publisher.service";
+import {getPublishYears} from "../services/product.service";
+import {useLoading} from "../contexts/LoadingContext";
+import {getAuthors} from "../services/author.service";
 
-const selectYear = [
-    { year: 2022, year2: 2011},
-    { year: 2021, year2: 2010},
-    { year: 2020, year2: 2009},
-    { year: 2019, year2: 2008},
-    { year: 2018, year2: 2007},
-    { year: 2017, year2: 2006},
-    { year: 2016, year2: 2005},
-    { year: 2015, year2: 2004},
-    { year: 2014, year2: 2003},
-    { year: 2013, year2: 2002},
-    { year: 2012, year2: 2001},
-];
-
-const categoryBlog1 = [
-    {name:'Action'     , name2:'Fantasy' },
-    {name:'Advanture'  , name2:'History' },
-    {name:'Animation'  , name2:'Horror'  },
-    {name:'Biography'  , name2:'Mystery' },
-    {name:'Comedy'     , name2:'Romance' },
-    {name:'Crime'      , name2:'Sci-fi'  },
-    {name:'Documentary', name2:'Sport'   },
-    {name:'Design'     , name2:'Science' },
-];
-const publishBlog = [
-    {title:'Action'},
-    {title:'Advanture'},
-    {title:'Animation'},
-    {title:'Biography'},
-    {title:'Comedy'},
-    {title:'Crime'},
-    {title:'Documentary'},
-];
-const accordionBlog2 = [
-    {title:'Best Sales (105)'},
-    {title:'Most Commented (21)'},
-    {title:'Newest Books (32)'},
-    {title:'Featured (129)'},
-    {title:'Watch History (23)'},
-    {title:'Best Books (44)'},
-];
-
-const ShopSidebar = () =>{
+const ShopSidebar = ({filterCriteria, setFilterCriteria, setShowSidebar}) =>{
+    const { loadingDispatch } = useLoading();
     const categories = useCategories();
+    const [authors, setAuthors] = useState([])
+    const [publishers, setPublishers] = useState([]);
+    const [years, setYears] = useState([]);
 
+    useEffect(() => {
+        fetchAuthors();
+        fetchPublishers();
+        fetchPublishYears();
+    }, []);
+
+    const fetchAuthors = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getAuthors();
+            setAuthors(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
+    const fetchPublishers = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getPublishers();
+            setPublishers(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
+    const fetchPublishYears = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getPublishYears();
+            setYears(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
 
     const renderCategoryCheckboxes = (categories, level = 0) => {
         return categories.map((item) => (
             <React.Fragment key={item.id}>
                 <div className={`form-check search-content${level > 0 ? ' m-l20' : ''}`} >
-                    <input className="form-check-input" type="checkbox" value="" id={`shopcategoryCheckBox-${item.id}`} />
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={`shopcategoryCheckBox-${item.id}`}
+                        checked={filterCriteria.categoryIds.includes(item.id)}
+                        onChange={() => handleCategoryToggle(item.id)}
+                    />
                     <label className="form-check-label" htmlFor={`shopcategoryCheckBox-${item.id}`}>
                         {item.name}
                     </label>
@@ -65,12 +78,114 @@ const ShopSidebar = () =>{
         ));
     };
 
+    const handleCategoryToggle = (categoryId) => {
+        const updatedSelectedCategoryIds = [...filterCriteria.categoryIds];
+
+        if (updatedSelectedCategoryIds.includes(categoryId)) {
+            // If the category is already selected, remove it
+            const index = updatedSelectedCategoryIds.indexOf(categoryId);
+            updatedSelectedCategoryIds.splice(index, 1);
+        } else {
+            // If the category is not selected, add it
+            updatedSelectedCategoryIds.push(categoryId);
+        }
+
+        // Handle the subcategories
+        categories.forEach((category) => {
+            if (category.id === categoryId) {
+                if (updatedSelectedCategoryIds.includes(category.id)) {
+                    // If the category is checked, add all subcategories
+                    category.subCategories.forEach((subCategory) => {
+                        if (!updatedSelectedCategoryIds.includes(subCategory.id)) {
+                            updatedSelectedCategoryIds.push(subCategory.id);
+                        }
+                    });
+                } else {
+                    // If the category is unchecked, remove it and its subcategories
+                    updatedSelectedCategoryIds.splice(updatedSelectedCategoryIds.indexOf(category.id), 1);
+                    category.subCategories.forEach((subCategory) => {
+                        const subCategoryIndex = updatedSelectedCategoryIds.indexOf(subCategory.id);
+                        if (subCategoryIndex !== -1) {
+                            updatedSelectedCategoryIds.splice(subCategoryIndex, 1);
+                        }
+                    });
+                }
+            }
+        });
+
+        // Update the filterCriteria with the updated category IDs
+        setFilterCriteria({
+            ...filterCriteria,
+            categoryIds: updatedSelectedCategoryIds,
+        });
+    };
+
+    const handleAuthorToggle = (authorId) => {
+        // Create a copy of the selected publishers array
+        const updatedSelectedAuthors = [...filterCriteria.authorIds];
+
+        // If the publisher is already selected, unselect it; otherwise, select it
+        if (updatedSelectedAuthors.includes(authorId)) {
+            const index = updatedSelectedAuthors.indexOf(authorId);
+            updatedSelectedAuthors.splice(index, 1);
+        } else {
+            updatedSelectedAuthors.push(authorId);
+        }
+
+        // Update the filterCriteria with the selected publishers
+        setFilterCriteria({
+            ...filterCriteria,
+            authorIds: updatedSelectedAuthors,
+        });
+    };
+
+    const handlePublisherToggle = (publisherId) => {
+        // Create a copy of the publisher IDs array in filterCriteria
+        const updatedPublisherIds = [...filterCriteria.publisherIds];
+
+        if (updatedPublisherIds.includes(publisherId)) {
+            const index = updatedPublisherIds.indexOf(publisherId);
+            updatedPublisherIds.splice(index, 1);
+        } else {
+            updatedPublisherIds.push(publisherId);
+        }
+
+        // Update the filterCriteria with the updated publisher IDs
+        setFilterCriteria({
+            ...filterCriteria,
+            publisherIds: updatedPublisherIds,
+        });
+    };
+
+    const handleYearToggle = (year) => {
+        // Create a copy of the selected years array in filterCriteria
+        const updatedSelectedYears = [...filterCriteria.publishYears];
+
+        // If the year is already selected, unselect it; otherwise, select it
+        if (updatedSelectedYears.includes(year)) {
+            const index = updatedSelectedYears.indexOf(year);
+            updatedSelectedYears.splice(index, 1);
+        } else {
+            updatedSelectedYears.push(year);
+        }
+
+        // Update the filterCriteria with the selected years
+        setFilterCriteria({
+            ...filterCriteria,
+            publishYears: updatedSelectedYears,
+        });
+    };
+
+
     return(
         <>
             <div className="shop-filter">
                 <div className="d-flex justify-content-between">
                     <h4 className="title">Filter Option</h4>
-                    <Link to={"#"} className="panel-close-btn"><i className="flaticon-close"></i></Link>
+                    <Link
+                        className="panel-close-btn"
+                        onClick={() => setShowSidebar(false)}
+                    ><i className="flaticon-close"></i></Link>
                 </div>
                 <Accordion className="accordion-filter" defaultActiveKey="0">
                     <Accordion.Item eventKey="0">
@@ -78,9 +193,9 @@ const ShopSidebar = () =>{
                             Price Range
                         </Accordion.Header>
                         <Accordion.Body >
-                            <div className="range-slider style-1">
+                            <div className="range-slider style-1 pb-2">
                                 <div id="slider-tooltips">
-                                    <SlideDragable />
+                                    <SlideDragable filterCriteria={filterCriteria} setFilterCriteria={setFilterCriteria}/>
                                 </div>
                             </div>
                         </Accordion.Body>
@@ -91,53 +206,74 @@ const ShopSidebar = () =>{
                         </Accordion.Header>
                         <Accordion.Body >
                             <div className="widget dz-widget_services d-flex justify-content-between">
-                                <div className="">
+                                <div>
                                     {renderCategoryCheckboxes(categories)}
                                 </div>
                             </div>    
                         </Accordion.Body>
                     </Accordion.Item>
                     <Accordion.Item eventKey="2">
-                        <Accordion.Header>Choose Publisher</Accordion.Header>
+                        <Accordion.Header>Select Author</Accordion.Header>
                         <Accordion.Body >
                             <div className="widget dz-widget_services">
-                                {publishBlog.map((data,ind)=>(
-                                    <div className="form-check search-content" key={ind}>
-                                        <input className="form-check-input" type="checkbox" value="" id={`publisherCheckBox-${ind+38}`} />
-                                        <label className="form-check-label" htmlFor={`publisherCheckBox-${ind+38}`}>
-                                            {data.title}
+                                {authors.map((author)=>(
+                                    <div className="form-check search-content" key={author.id}>
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id={`authorCheckBox-${author.id}`}
+                                            checked={filterCriteria.authorIds.includes(author.id)}
+                                            onChange={() => handleAuthorToggle(author.id)}
+                                        />
+                                        <label className="form-check-label" htmlFor={`authorCheckBox-${author.id}`}>
+                                            {author.name}
                                         </label>
                                     </div>
-                                ))} 
-                                
+                                ))}
                             </div>
                         </Accordion.Body>
                     </Accordion.Item>
                     <Accordion.Item eventKey="3">
+                        <Accordion.Header>Choose Publisher</Accordion.Header>
+                        <Accordion.Body >
+                            <div className="widget dz-widget_services">
+                                {publishers.map((publisher)=>(
+                                    <div className="form-check search-content" key={publisher.id}>
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id={`publisherCheckBox-${publisher.id}`}
+                                            checked={filterCriteria.publisherIds.includes(publisher.id)}
+                                            onChange={() => handlePublisherToggle(publisher.id)}
+                                        />
+                                        <label className="form-check-label" htmlFor={`publisherCheckBox-${publisher.id}`}>
+                                            {publisher.name}
+                                        </label>
+                                    </div>
+                                ))} 
+                            </div>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                    <Accordion.Item eventKey="4">
                         <Accordion.Header>Select Year</Accordion.Header>
                         <Accordion.Body >
-                            <div className="widget dz-widget_services col d-flex justify-content-between">
-                                <div className="">
-                                    {selectYear.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+22}`} />
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+22}`}>
-                                                {item.year}
+                            <div className="widget dz-widget_services col row">
+                                {years.map((year, ind) => (
+                                    <div className={`col-${ind % 2 === 0 ? '6' : '6'}`}>
+                                        <div className="form-check search-content">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={`yearCheckBox-${ind}`}
+                                                checked={filterCriteria.publishYears.includes(year)}
+                                                onChange={() => handleYearToggle(year)}
+                                            />
+                                            <label className="form-check-label" htmlFor={`yearCheckBox-${ind}`}>
+                                                {year}
                                             </label>
                                         </div>
-                                    ))} 
-                                
-                                </div>
-                                <div className="">
-                                    {selectYear.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+33}`} /> 
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+33}`}>
-                                                {item.year2}
-                                            </label>
-                                        </div>
-                                    ))}                                                        
-                                </div>
+                                    </div>
+                                ))}
                             </div>
                         </Accordion.Body>
                     </Accordion.Item>
@@ -161,8 +297,23 @@ const ShopSidebar = () =>{
 
                 <div className="row filter-buttons">
                     <div>
-                        <Link to={"#"} className="btn btn-secondary btnhover mt-4 d-block">Refine Search</Link>
-                        <Link to={"#"} className="btn btn-outline-secondary btnhover mt-3 d-block">Reset Filter</Link>
+                        {/*<Link to={"#"} className="btn btn-secondary btnhover mt-4 d-block">Refine Search</Link>*/}
+                        <Link
+                            className="btn btn-outline-secondary btnhover mt-3 d-block"
+                            onClick={() => setFilterCriteria({
+                                page: 1,
+                                pageSize: 12,
+                                minPrice: null,
+                                maxPrice: null,
+                                categoryIds: [],
+                                authorIds: [],
+                                publisherIds: [],
+                                publishYears: [],
+                                sortBy: null,
+                                searchQuery: null,
+                                status: 1
+                            })}
+                        >Reset Filter</Link>
                     </div>
                 </div>
             </div>

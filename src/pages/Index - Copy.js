@@ -38,7 +38,7 @@ import ErrorPage from './ErrorPage';
 function Index(props){
 	
 	
-	var baseName = '/react/demo';
+	var baseName = '';
 	//console.log(Route);
 	//console.log(window.location);
 	//console.log(props);

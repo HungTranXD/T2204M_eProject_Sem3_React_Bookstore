@@ -43,7 +43,7 @@ import logo from './../assets/images/logo.png';
 import logoWhite from './../assets/images/logo-white.png';
 
 function Index(props){
-	var baseName = 'react/demo';
+	var baseName = '';
 	return(
 		<BrowserRouter basename={baseName}>
 			<div className="page-wraper">
@@ -89,6 +89,7 @@ function Index(props){
 								<Route path='/blog-list-sidebar' exact component={BlogListSidebar} />
 								<Route path='/blog-detail' exact component={BlogDetail} />
 								<Route path='/contact-us' exact component={ContactUs} />
+								<Route component={ErrorPage} />
 							</Switch>
 						</Main>
 						<Footer  footerChange="style-1" logoImage={logo}/>									

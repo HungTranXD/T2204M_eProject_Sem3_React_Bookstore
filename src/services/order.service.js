@@ -7,17 +7,17 @@ export const postOrder = async (orderData) => {
         return response.data;
     } catch (error) {
         console.log(error);
-        return {};
+        throw error;
     }
 }
 
-export const patchConfirmOrderPayment = async (id) => {
-    const endpoint = `order/confirm-payment/${id}`;
+export const patchConfirmOrderPayment = async (code) => {
+    const endpoint = `order/confirm-payment/${code}`;
     try {
         const response = await api.patch(endpoint);
         return response.data;
     } catch (error) {
         console.log(error);
-        return {};
+        throw error;
     }
 }

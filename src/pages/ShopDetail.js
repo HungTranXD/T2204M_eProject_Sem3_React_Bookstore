@@ -241,7 +241,7 @@ function ShopDetail(){
                                                     <th className="p-0 fw-normal">Categories: </th>
                                                     <td className="p-0">
                                                         {product.categories.map((c, index) =>
-                                                            <Link key={c.id} to={"#"} className="me-1 text-uppercase fw-bold">{c.name}{index < product.categories.length-1 ? ", " : " "}</Link>
+                                                            <Link key={c.id} to={"#"} className="me-1 text-uppercase">{c.name}{index < product.categories.length-1 ? ", " : " "}</Link>
                                                         )}
                                                     </td>
                                                 </tr>

@@ -8,8 +8,12 @@ import {useAuth} from "../contexts/AuthContext";
 import {useLoading} from "../contexts/LoadingContext";
 import {loginUser} from "../services/auth.service";
 import {toast} from "react-toastify";
+import { useLocation } from "react-router-dom";
 
-function Login(){
+function Login(props){
+    const location = useLocation(); // Get the current location
+    const previousPath = location.state?.from || "/"; // Get the previous path from state or default to root
+
     const [forgotPass, setForgotPass] = useState();
 
     const { loadingDispatch } = useLoading();
@@ -39,7 +43,7 @@ function Login(){
                 authDispatch({ type: 'SET_USER', payload: loginData.user });
                 console.log(loginData);
                 toast.success('You successfully Login!');
-                // props.history.push('/');
+                props.history.push(previousPath);
             } catch (error) {
                 toast.error('Wrong email or password!');
             } finally {

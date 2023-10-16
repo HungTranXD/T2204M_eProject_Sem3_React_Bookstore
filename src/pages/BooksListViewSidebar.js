@@ -67,7 +67,8 @@ function BooksListViewSidebar(){
                     <div className="container">
                         <div className="row ">  
                             <div className="col-xl-3">
-                                <ShopSidebar />
+                                {/*<ShopSidebar />*/}
+                                ABC
                             </div>
                            
                             <div className="col-xl-9">

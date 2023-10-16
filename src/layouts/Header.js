@@ -61,6 +61,18 @@ function Header(){
 	const { cartState, cartDispatch } = useCart();
 	const { cartItems } = cartState;
 
+	const handleRemoveItem = (productId) => {
+		cartDispatch({ type: 'REMOVE_CART_ITEM', payload: { productId } });
+	};
+
+	const calculateSubtotal = (product) => {
+		return (product.price - (product.discountAmount ? product.discountAmount : 0)) * product.buy_quantity;
+	};
+
+	const calculateTotal = () => {
+		return cartState.cartItems.reduce((total, product) => total + calculateSubtotal(product), 0);
+	};
+
 	// ---- Authentication
 	const { authState, authDispatch } = useAuth();
 	const { user } = useUser();
@@ -122,11 +134,17 @@ function Header(){
 													</div>
 													<div className="media-body">
 														<h6 className="dz-title"><Link to={"shop-detail"} className="media-heading">{item.name} <span className="font-14 text-primary fw-normal">x{item.buy_quantity}</span></Link></h6>
-														<span className="dz-price">
+														{item.discountAmount ?
+															<span className="dz-price">
+															{formatCurrency(item.price - item.discountAmount)}
+																<del className="font-12 ps-1" style={{color: "#AAAAAA"}}>{formatCurrency(item.price)}</del>
+															</span>
+														:
+															<span className="dz-price">
 															{formatCurrency(item.price)}
-															<del className="font-12 ps-1" style={{color: "#AAAAAA"}}>{formatCurrency(item.discountAmount)}</del>
-														</span>
-														<span className="item-close">&times;</span>
+															</span>
+														}
+														<span className="item-close" onClick={()=>handleRemoveItem(item.id)}>&times;</span>
 													</div>
 												</div>
 											</li>
@@ -137,10 +155,10 @@ function Header(){
 											</li>
 										}
 										<li className="cart-item text-center">
-											<h6 className="text-secondary">Total = $500</h6>
+											<h6 className="text-secondary">Total = {formatCurrency(calculateTotal())}</h6>
 										</li>
 										<li className="text-center d-flex">
-											<Link to={"shop-cart"} className="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</Link>
+											<Link to={"/shop-cart"} className="btn btn-sm btn-primary me-2 btnhover w-100">View Cart</Link>
 											<Link to={"shop-checkout"} className="btn btn-sm btn-outline-primary btnhover w-100">Checkout</Link>
 										</li>
 									</Dropdown.Menu>

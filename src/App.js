@@ -12,6 +12,10 @@ import Loading from "./layouts/Loading";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {CategoryProvider} from "./contexts/CategoryContext";
+import {ProvinceProvider} from "./contexts/ProvinceContext";
+import {CouponProvider} from "./contexts/CouponContext";
+import {PayPalScriptProvider} from "@paypal/react-paypal-js";
+import {CLIENT_ID} from "./config";
 
 function App() {
 	return (
@@ -20,11 +24,17 @@ function App() {
 				<CartProvider>
 					<LoadingProvider>
 						<CategoryProvider>
-							<Loading/>
-							<div className="App">
-								<Index />
-								<ToastContainer/>
-							</div>
+							<ProvinceProvider>
+								<CouponProvider>
+									<PayPalScriptProvider options={{ "client-id": CLIENT_ID }}>
+										<Loading/>
+										<div className="App">
+											<Index />
+											<ToastContainer/>
+										</div>
+									</PayPalScriptProvider>
+								</CouponProvider>
+							</ProvinceProvider>
 						</CategoryProvider>
 					</LoadingProvider>
 				</CartProvider>
