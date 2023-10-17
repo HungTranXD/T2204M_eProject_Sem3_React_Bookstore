@@ -10,6 +10,12 @@ import book6 from './../assets/images/books/grid/book6.jpg';
 import book5 from './../assets/images/books/grid/book5.jpg';
 //Components 
 import PageTitle from './../layouts/PageTitle';
+import {useUser} from "../contexts/UserContext";
+import {useLoading} from "../contexts/LoadingContext";
+import {getCategories} from "../services/category.service";
+import {getLikedProducts} from "../services/user.service";
+import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
+import {formatCurrency} from "../utils/currencyFormatter";
 
 const wishListData = [
     {id:'1', image: book1, title: 'Prduct Item 1', price:'28.00', number: 1},
@@ -48,6 +54,25 @@ function Wishlist(){
         });
         setWishData(temp);
 	}
+
+
+    //My own code:
+    const { loadingDispatch } = useLoading();
+    const { user, likedProducts, setLikedProducts } = useUser();
+
+    const fetchLikedProducts = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getLikedProducts();
+            setLikedProducts(response);
+        } catch (error) {
+            setLikedProducts([]);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
+
     return(
         <>
             <div className="page-content">
@@ -69,32 +94,63 @@ function Wishlist(){
                                                 <th>Close</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            {wishData.map((data, index)=>(
-                                                <tr key={index}>
-                                                    <td className="product-item-img"><img src={data.image} alt="" /></td>
-                                                    <td className="product-item-name">{data.title}</td>
-                                                    <td className="product-item-price">${data.price}</td>
+                                        {user && likedProducts.length > 0 &&
+                                            <tbody>
+                                            {likedProducts.map((item)=>(
+                                                <tr key={item.id}>
+                                                    <td className="product-item-img"><img src={addAutoWidthTransformation(item.thumbnail)} alt="" /></td>
+                                                    <td className="product-item-name">{item.name}</td>
+                                                    {item.discountAmount ?
+                                                        <td className="product-item-price">
+                                                            {formatCurrency(item.price - item.discountAmount)}
+                                                            <del className="text-primary m-l10">{formatCurrency(item.price)}</del>
+                                                        </td>
+                                                    :
+                                                        <td className="product-item-price">
+                                                            {formatCurrency(item.price)}
+                                                        </td>
+                                                    }
                                                     <td className="product-item-quantity">
                                                         <div className="quantity btn-quantity style-1 me-3">
-                                                            <button className="btn btn-plus" type="button" 
-                                                                onClick={()=> {handleNumPlus(data.id)}}>
+                                                            <button className="btn btn-plus" type="button">
                                                                 <i className="ti-plus"></i>
                                                             </button>
-                                                            <input type="text" className="quantity-input" value={data.number} />
-                                                            <button className="btn btn-minus " type="button"
-                                                                onClick={()=>{handleNumMinus(data.id)}}>
+                                                            <input type="text" className="quantity-input" value={1} />
+                                                            <button className="btn btn-minus " type="button">
                                                                 <i className="ti-minus"></i>
-                                                            </button>    
+                                                            </button>
                                                         </div>
                                                     </td>
                                                     <td className="product-item-totle"><Link to={"shop-cart"} className="btn btn-primary btnhover">Add To Cart</Link></td>
                                                     <td className="product-item-close">
-                                                        <Link to={"#"} className="ti-close" onClick={()=>handleDeleteClick(data.id)}></Link>
+                                                        <Link className="ti-close" onClick={()=>null}></Link>
                                                     </td>
                                                 </tr>
                                             ))}
-                                        </tbody>
+                                            </tbody>
+                                        }
+
+                                        {user && likedProducts.length === 0 &&
+                                            <tbody>
+                                            <tr>
+                                                <td colSpan="6" className="text-center">(Wishlist is empty)</td>
+                                            </tr>
+                                            </tbody>
+                                        }
+
+                                        {user == null &&
+                                            <tbody>
+                                            <tr>
+                                                <td colSpan="6" className="text-center">
+                                                    Have a account?
+                                                    <Link to={"/shop-login"}> Login </Link>
+                                                    or
+                                                    <Link to={"/shop-registration"}> Register </Link>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        }
+
                                     </table>
                                 </div>
                             </div>

@@ -1,12 +1,14 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import { useAuth } from './AuthContext';
-import {getProfile} from "../services/auth.service"; // Import the AuthContext
+import {getProfile} from "../services/auth.service";
+import {getLikedProducts} from "../services/user.service"; // Import the AuthContext
 
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const { authState } = useAuth();
     const [user, setUser] = useState(null);
+    const [likedProducts, setLikedProducts] = useState([]);
 
     useEffect(() => {
         console.log("set user after token change");
@@ -19,13 +21,25 @@ const UserProvider = ({ children }) => {
                 .catch(error => {
                     console.log('Error fetching user profile:', error);
                 });
+            getLikedProducts()
+                .then(response => {
+                    setLikedProducts(response);
+                })
+                .catch(error => {
+                    console.log('Error fetching liked products:', error);
+                });
         } else {
             setUser(null);
+            setLikedProducts([null])
         }
     }, [authState.token]);
 
     return (
-        <UserContext.Provider value={{ user }}>
+        <UserContext.Provider value={{
+            user,
+            likedProducts,
+            setLikedProducts
+        }}>
             {children}
         </UserContext.Provider>
     );
