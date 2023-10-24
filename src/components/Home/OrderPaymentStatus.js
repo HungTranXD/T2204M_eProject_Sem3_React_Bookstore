@@ -20,7 +20,7 @@ const OrderPaymentStatus = ({paymentSuccess, setPaymentStatus, createdOrder}) =>
                     <div className="tp-donations-amount text-center">
                         {paymentSuccess ?
                             <>
-                            <h3 className="mt-4">Payment Success!</h3>
+                            <h3 className="mt-4">Thank you!</h3>
                             <p className="mb-0">Your order have been confirmed.</p>
                             <p className="mb-0">Check your email for more detail.</p>
                             </>
@@ -52,13 +52,20 @@ const OrderPaymentStatus = ({paymentSuccess, setPaymentStatus, createdOrder}) =>
                             </tr>
                             <tr>
                                 <td>Total Payment</td>
-                                <td>{formatCurrency(createdOrder.grandTotal)} ({createdOrder.paymentMethod})</td>
+                                <td>
+                                    {formatCurrency(createdOrder.grandTotal)} ({createdOrder.paymentMethod})
+                                    <span className="mx-1">|</span>
+                                    {createdOrder.status === 0
+                                        ? <span className="fw-bold text-danger">Unpaid</span>
+                                        : <span className="fw-bold text-success">Paid</span>
+                                    }
+                                </td>
                             </tr>
                             </tbody>
                         </table>
                         {paymentSuccess ?
                             <Link to="/" class="btn btn-primary" >
-                                Back to Home
+                                Continue Shopping
                                 <i className="fa fa-angle-right m-l10"></i>
                             </Link>
                         :

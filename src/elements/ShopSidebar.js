@@ -187,7 +187,7 @@ const ShopSidebar = ({filterCriteria, setFilterCriteria, setShowSidebar}) =>{
                         onClick={() => setShowSidebar(false)}
                     ><i className="flaticon-close"></i></Link>
                 </div>
-                <Accordion className="accordion-filter" defaultActiveKey="0">
+                <Accordion className="accordion-filter" defaultActiveKey={['1']} alwaysOpen>
                     <Accordion.Item eventKey="0">
                         <Accordion.Header>
                             Price Range

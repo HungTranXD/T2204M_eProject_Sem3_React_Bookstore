@@ -72,7 +72,7 @@ export const MenuListArray2 = [
             },
             {
                 title: 'Shop Grid Sidebar',
-                to: './books-grid-view-sidebar',
+                to: '/books-grid-view-sidebar',
             },
             {
                 title: 'Shop List',
@@ -80,7 +80,7 @@ export const MenuListArray2 = [
             },
             {
                 title: 'Shop List Sidebar',
-                to: './books-list-view-sidebar',
+                to: '/books-list-view-sidebar',
             },
             {
                 title: 'Shop Detail',

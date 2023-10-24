@@ -29,6 +29,8 @@ import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
 import {toast} from "react-toastify";
 import {useCart} from "../contexts/CartContext";
+import {useUser} from "../contexts/UserContext";
+import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
 
 const lableBlogData = [
     {name:'Architecture'},
@@ -100,9 +102,15 @@ function BooksGridViewSidebar(){
         status: 1
     });
 
+    const { likedProductIds, fetchLikedProducts  } = useUser();
+
     useEffect(() => {
         fetchProducts();
     }, [filterCriteria])
+
+    useEffect(() => {
+        fetchLikedProducts();
+    }, [])
 
     const fetchProducts = async () => {
         try {
@@ -150,6 +158,36 @@ function BooksGridViewSidebar(){
             sortBy: selectedSortOption,
         });
     };
+
+    const handleLikeButton = async (id) => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            await likeOrUnlikeProduct(id);
+            await fetchLikedProducts();
+            toast.success("Like/Unlike successfully")
+        } catch (error) {
+            toast.error("You need to login")
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
+    function calculateStarRating(rating) {
+        const roundedRating = Math.round(rating * 2) / 2; // Round to the nearest 0.5
+        const starRating = [];
+
+        for (let i = 1; i <= 5; i++) {
+            if (roundedRating >= i) {
+                starRating.push(<li key={i}><i className="fas fa-star text-yellow"></i></li>);
+            } else if (roundedRating === i - 0.5) {
+                starRating.push(<li key={i}><i className="fas fa-star-half-alt text-yellow"></i></li>);
+            } else {
+                starRating.push(<li key={i}><i className="far fa-star text-yellow"></i></li>);
+            }
+        }
+
+        return starRating;
+    }
 
     return(
         <>
@@ -269,7 +307,13 @@ function BooksGridViewSidebar(){
                                                     <img src={addAutoWidthTransformation(product.thumbnail)} alt="book" />
                                                 </div>
                                                 <div className="bookmark-btn style-2">
-                                                    <input className="form-check-input" type="checkbox" id={`flexCheckDefault${product.id}`} />
+                                                    <input
+                                                        className="form-check-input"
+                                                        type="checkbox"
+                                                        id={`flexCheckDefault${product.id}`}
+                                                        checked={likedProductIds.includes(product.id)}
+                                                        onClick={() => handleLikeButton(product.id)}
+                                                    />
                                                     <label className="form-check-label" htmlFor={`flexCheckDefault${product.id}`}>
                                                         <i className="flaticon-heart"></i>
                                                     </label>
@@ -287,11 +331,7 @@ function BooksGridViewSidebar(){
                                                         )}
                                                     </ul>
                                                     <ul className="dz-rating">
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
+                                                        {calculateStarRating(parseFloat(product.rating.toFixed(1)))}
                                                     </ul>
                                                     <div className="book-footer">
                                                         {product.discountAmount ?
@@ -361,15 +401,11 @@ function BooksGridViewSidebar(){
                                                         </div>
                                                     </div>
                                                     <div className="review-num">
-                                                        <h4>4.0</h4>
+                                                        <h4>{product.rating.toFixed(1)}</h4>
                                                         <ul className="dz-rating">
-                                                            <li><i className="flaticon-star text-yellow"></i></li>
-                                                            <li><i className="flaticon-star text-yellow"></i></li>
-                                                            <li><i className="flaticon-star text-yellow"></i></li>
-                                                            <li><i className="flaticon-star text-yellow"></i></li>
-                                                            <li><i className="flaticon-star text-muted"></i></li>
+                                                            {calculateStarRating(parseFloat(product.rating.toFixed(1)))}
                                                         </ul>
-                                                        <span><Link to={"#"}> 235 Reviews</Link></span>
+                                                        <span><Link to={"#"}> {product.reviews.length} Reviews</Link></span>
                                                     </div>
                                                 </div>
                                                 <div className="rate">
@@ -379,10 +415,22 @@ function BooksGridViewSidebar(){
                                                         <li><span>Year</span>{product.publishYear}</li>
                                                     </ul>
                                                     <div className="d-flex">
-                                                        <Link to={"shop-cart"} className="btn btn-secondary btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
+                                                        <Link
+                                                            className="btn btn-secondary btnhover btnhover2"
+                                                            onClick={() => handleAddToCart(product)}
+                                                        >
+                                                            <i className="flaticon-shopping-cart-1 m-r10"></i>
+                                                            Add to cart
+                                                        </Link>
                                                         <div className="bookmark-btn style-1">
-                                                            <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
-                                                            <label className="form-check-label" for="flexCheckDefault1">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id={`flexCheckDefault${product.id}`}
+                                                                checked={likedProductIds.includes(product.id)}
+                                                                onClick={() => handleLikeButton(product.id)}
+                                                            />
+                                                            <label className="form-check-label" htmlFor={`flexCheckDefault${product.id}`}>
                                                                 <i className="flaticon-heart"></i>
                                                             </label>
                                                         </div>

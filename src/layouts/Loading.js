@@ -14,7 +14,7 @@ const Loading = () => {
         left: 0,
         backgroundColor: "#000",
         opacity: 0.8,
-        zIndex: 99999,
+        zIndex: 999999,
     }
 
     return (

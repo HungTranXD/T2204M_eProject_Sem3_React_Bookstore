@@ -1,77 +1,78 @@
-import React,{useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 
-//images
-import book3 from './../assets/images/books/grid/book3.jpg';
-import book2 from './../assets/images/books/grid/book2.jpg';
-import book4 from './../assets/images/books/grid/book4.jpg';
-import book1 from './../assets/images/books/grid/book1.jpg';
-import book6 from './../assets/images/books/grid/book6.jpg';
-import book5 from './../assets/images/books/grid/book5.jpg';
-//Components 
+//Components
 import PageTitle from './../layouts/PageTitle';
 import {useUser} from "../contexts/UserContext";
 import {useLoading} from "../contexts/LoadingContext";
 import {getCategories} from "../services/category.service";
-import {getLikedProducts} from "../services/user.service";
+import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
 import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
+import {useCart} from "../contexts/CartContext";
+import {toast} from "react-toastify";
 
-const wishListData = [
-    {id:'1', image: book1, title: 'Prduct Item 1', price:'28.00', number: 1},
-    {id:'2', image: book2, title: 'Prduct Item 2', price:'28.00', number: 1},
-    {id:'3', image: book3, title: 'Prduct Item 3', price:'28.00', number: 1},
-    {id:'4', image: book4, title: 'Prduct Item 4', price:'28.00', number: 1},
-    {id:'5', image: book5, title: 'Prduct Item 5', price:'28.00', number: 1},
-    {id:'6', image: book6, title: 'Prduct Item 6', price:'28.00', number: 1},
-];
+
 
 function Wishlist(){
-    const [wishData, setWishData] = useState(wishListData);
-    const handleDeleteClick = (shopId) => {
-        const newItem = [...wishData];    
-        const index = wishData.findIndex((data)=> data.id === shopId);
-        newItem.splice(index, 1);
-        setWishData(newItem);
-    }
-	
-	const handleNumPlus = (e) =>{
-		let temp = wishData.map((data) => {
-            if (e === data.id) {
-                return { ...data, number: data.number + 1 };
-            }
-            return data;
-        });
-        setWishData(temp);
-	}
-	const handleNumMinus = (e) =>{
-
-		let temp = wishData.map((data) => {
-            if (e === data.id) {
-                return { ...data, number: data.number > 0 ? data.number - 1 : data.number };
-            }
-            return data;
-        });
-        setWishData(temp);
-	}
-
-
-    //My own code:
     const { loadingDispatch } = useLoading();
-    const { user, likedProducts, setLikedProducts } = useUser();
+    const { user, likedProducts, setLikedProducts, fetchLikedProducts } = useUser();
+    const { cartDispatch } = useCart();
 
-    const fetchLikedProducts = async () => {
+    useEffect(() => {
+        fetchLikedProducts();
+    }, [])
+
+    const decreaseQuantity = (product) => {
+        if (product.buy_quantity > 1) {
+            setLikedProducts((prevLikedProducts) =>
+                prevLikedProducts.map((item) =>
+                    item.id === product.id ? { ...item, buy_quantity: item.buy_quantity - 1 } : item
+                )
+            );
+        }
+    };
+
+    const increaseQuantity = (product) => {
+        if (product.buy_quantity < product.quantity) {
+            setLikedProducts((prevLikedProducts) =>
+                prevLikedProducts.map((item) =>
+                    item.id === product.id ? { ...item, buy_quantity: item.buy_quantity + 1 } : item
+                )
+            );
+        }
+    };
+
+    const handleAddToCart = (product) => {
+        if (product.quantity === 0) {
+            toast.error('Out of Stock!');
+            return;
+        }
+
+        loadingDispatch({type: 'START_LOADING'});
+        // Create a new product object with the selectedGift and buy_quantity
+        const productToAdd = {
+            ...product,
+            buy_quantity: product.buy_quantity,
+        };
+        // Dispatch the ADD_TO_CART action with the product
+        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
+        toast.success('Add to Cart!');
+        loadingDispatch({type: 'STOP_LOADING'});
+    };
+
+    const handleRemoveClick = async (id) => {
         try {
             loadingDispatch({type: 'START_LOADING'});
-            const response = await getLikedProducts();
-            setLikedProducts(response);
+            await likeOrUnlikeProduct(id);
+            await fetchLikedProducts();
+            toast.success("Remove from wishlist")
         } catch (error) {
-            setLikedProducts([]);
+            toast.error("Can not remove product")
         } finally {
             loadingDispatch({type: 'STOP_LOADING'});
         }
     }
-
 
     return(
         <>
@@ -96,34 +97,60 @@ function Wishlist(){
                                         </thead>
                                         {user && likedProducts.length > 0 &&
                                             <tbody>
-                                            {likedProducts.map((item)=>(
-                                                <tr key={item.id}>
-                                                    <td className="product-item-img"><img src={addAutoWidthTransformation(item.thumbnail)} alt="" /></td>
-                                                    <td className="product-item-name">{item.name}</td>
-                                                    {item.discountAmount ?
+                                            {likedProducts.map((product)=>(
+                                                <tr key={product.id}>
+                                                    <td className="product-item-img"><img src={addAutoWidthTransformation(product.thumbnail)} alt="" /></td>
+                                                    <td className="product-item-name">{product.name}</td>
+                                                    {product.discountAmount ?
                                                         <td className="product-item-price">
-                                                            {formatCurrency(item.price - item.discountAmount)}
-                                                            <del className="text-primary m-l10">{formatCurrency(item.price)}</del>
+                                                            {formatCurrency(product.price - product.discountAmount)}
+                                                            <del className="text-primary m-l10">{formatCurrency(product.price)}</del>
                                                         </td>
                                                     :
                                                         <td className="product-item-price">
-                                                            {formatCurrency(item.price)}
+                                                            {formatCurrency(product.price)}
                                                         </td>
                                                     }
                                                     <td className="product-item-quantity">
-                                                        <div className="quantity btn-quantity style-1 me-3">
-                                                            <button className="btn btn-plus" type="button">
-                                                                <i className="ti-plus"></i>
-                                                            </button>
-                                                            <input type="text" className="quantity-input" value={1} />
-                                                            <button className="btn btn-minus " type="button">
-                                                                <i className="ti-minus"></i>
-                                                            </button>
-                                                        </div>
+                                                        {product.quantity > 0 ?
+                                                            <div className="quantity btn-quantity style-1 me-3">
+                                                                <button
+                                                                    className="btn btn-plus"
+                                                                    type="button"
+                                                                    onClick={() => increaseQuantity(product)}
+                                                                >
+                                                                    <i className="ti-plus"></i>
+                                                                </button>
+                                                                <input type="text" className="quantity-input" value={product.buy_quantity} />
+                                                                <button
+                                                                    className="btn btn-minus "
+                                                                    type="button"
+                                                                    onClick={() => decreaseQuantity(product)}
+                                                                >
+                                                                    <i className="ti-minus"></i>
+                                                                </button>
+                                                            </div>
+                                                        :
+                                                            <div>Out of stock</div>
+                                                        }
                                                     </td>
-                                                    <td className="product-item-totle"><Link to={"shop-cart"} className="btn btn-primary btnhover">Add To Cart</Link></td>
+                                                    <td className="product-item-totle">
+                                                        {product.quantity > 0 ?
+                                                        <Link
+                                                            className="btn btn-primary btnhover"
+                                                            onClick={() => handleAddToCart(product)}
+                                                        >
+                                                            Add To Cart
+                                                        </Link>
+                                                        :
+                                                            <div>Can not add to cart</div>
+                                                        }
+                                                    </td>
                                                     <td className="product-item-close">
-                                                        <Link className="ti-close" onClick={()=>null}></Link>
+                                                        <Link
+                                                            className="ti-close"
+                                                            onClick={() => handleRemoveClick(product.id)}
+                                                        ></Link>
                                                     </td>
                                                 </tr>
                                             ))}

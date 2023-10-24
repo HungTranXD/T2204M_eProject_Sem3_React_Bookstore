@@ -24,6 +24,7 @@ import {getCouponByCode} from "../services/coupon.service";
 import {Button} from "react-bootstrap";
 import formatDate from "../utils/datetimeFormatter";
 import {useCouponContext} from "../contexts/CouponContext";
+import SimpleReactValidator from "simple-react-validator";
 
 
 function ShopCart(){
@@ -34,21 +35,57 @@ function ShopCart(){
     // ----------------- States for calculate delivery fee ---------------
     const {
         provinces,
+        address, setAddress,
         selectedProvinceId, selectedDistrictId,
         setSelectedProvinceId, setSelectedDistrictId,
-        deliveryFee
+        selectedDeliveryServiceId, setSelectedDeliveryServiceId,
+        selectedService
     } = useProvinces();
+    const [calculateDeliveryStep, setCalculateDeliveryStep] = useState(1);
+
+    const [validator] = React.useState(new SimpleReactValidator({
+        className: 'text-danger font-13'
+    }));
 
     const handleProvinceChange = (event) => {
         const selectedProvinceId = parseInt(event.target.value, 10);
-        setSelectedProvinceId(selectedProvinceId);
+        if (isNaN(selectedProvinceId)) {
+            setSelectedProvinceId(null);
+        } else {
+            setSelectedProvinceId(selectedProvinceId);
+        }
         setSelectedDistrictId(null); // Reset selected district when province changes
+        setSelectedDeliveryServiceId(null); // Reset selected delivery service when province changes
+        validator.showMessages();
     };
 
     const handleDistrictChange = (event) => {
         const selectedDistrictId = parseInt(event.target.value, 10);
-        setSelectedDistrictId(selectedDistrictId);
-        console.log(selectedDistrictId)
+        if (isNaN(selectedDistrictId)) {
+            setSelectedDistrictId(null);
+        } else {
+            setSelectedDistrictId(selectedDistrictId);
+        }
+        setSelectedDeliveryServiceId(null);
+        validator.showMessages();
+    };
+
+    const handleDeliveryServiceChange = (event) => {
+        const selectedDeliveryServiceId = parseInt(event.target.value, 10);
+        setSelectedDeliveryServiceId(selectedDeliveryServiceId);
+    }
+
+    const handleNextStepClick = () => {
+        if (validator.allValid()) {
+            loadingDispatch({type: 'START_LOADING'});
+            // Delay the setCalculateDeliveryStep(2) by 3 seconds
+            setTimeout(() => {
+                setCalculateDeliveryStep(2);
+                loadingDispatch({ type: 'STOP_LOADING' });
+            }, 1000); // 3000 milliseconds = 3 seconds
+        } else {
+            toast.error("Empty field is no allowed")
+        }
     };
 
 
@@ -111,7 +148,7 @@ function ShopCart(){
     };
 
     const calculateGrandTotal = () => {
-        return calculateTotal() + deliveryFee - discountAmount;
+        return calculateTotal() + (selectedService ? selectedService.fee : 0) - discountAmount;
     };
 
     const canCheckout = () => {
@@ -158,7 +195,16 @@ function ShopCart(){
                                                 <tr key={item.id}>
                                                     <td className="product-item-img"><img src={addAutoWidthTransformation(item.thumbnail)} alt="" /></td>
                                                     <td className="product-item-name">{item.name}</td>
-                                                    <td className="product-item-price">{formatCurrency(item.price - (item.discountAmount ? item.discountAmount : 0))}</td>
+                                                    {item.discountAmount ?
+                                                        <td className="product-item-price">
+                                                            {formatCurrency(item.price - item.discountAmount)}
+                                                            <del className="text-primary m-l10">{formatCurrency(item.price)}</del>
+                                                        </td>
+                                                        :
+                                                        <td className="product-item-price">
+                                                            {formatCurrency(item.price)}
+                                                        </td>
+                                                    }
                                                     <td className="product-item-quantity">
                                                         <div className="quantity btn-quantity style-1 me-3">
                                                             <button className="btn btn-plus" type="button"
@@ -192,40 +238,105 @@ function ShopCart(){
                         <div className="row">
                             <div className="col-lg-6">
                                 <div className="widget">
-                                    <form className="shop-form"> 
+                                    <form className="shop-form">
                                         <h4 className="widget-title">Calculate Shipping</h4>
-                                        <div className="row">
-                                            <div className="form-group col-lg-6">
-                                                <Form.Select
-                                                    aria-label="Credit Card Type"
-                                                    onChange={handleProvinceChange}
-                                                    value={selectedProvinceId}
-                                                >
-                                                    <option value="">Province</option>
-                                                    {provinces.map(province =>
-                                                        <option key={province.id} value={province.id}>
-                                                            {province.name}
-                                                        </option>
-                                                    )}
-                                                </Form.Select>
-                                            </div>
-                                            <div className="form-group col-lg-6">
-                                                <Form.Select
-                                                    aria-label="Credit Card Type"
-                                                    onChange={handleDistrictChange}
-                                                    value={selectedDistrictId}
-                                                >
-                                                    <option value="">District</option>
-                                                    {selectedProvinceId &&
-                                                        provinces.find((province) => province.id === selectedProvinceId).districts.map(district =>
-                                                            <option key={district.id} value={district.id}>
-                                                                {district.name}
+                                        {calculateDeliveryStep === 1 ?
+                                        <>
+                                            <div className="row">
+                                                <div className="form-group">
+                                                    <input
+                                                        type="text"
+                                                        name="address"
+                                                        className="form-control"
+                                                        placeholder="Address"
+                                                        value={address}
+                                                        onChange={(e) => {
+                                                            setAddress(e.target.value);
+                                                            validator.showMessages()
+                                                        }}
+                                                    />
+                                                    {validator.message('address', address, 'required')}
+                                                </div>
+                                                <div className="form-group col-lg-6">
+                                                    <Form.Select
+                                                        onChange={handleProvinceChange}
+                                                        value={selectedProvinceId}
+                                                    >
+                                                        <option value="">Province</option>
+                                                        {provinces.map(province =>
+                                                            <option key={province.id} value={province.id}>
+                                                                {province.name}
                                                             </option>
-                                                        )
-                                                    }
-                                                </Form.Select>
+                                                        )}
+                                                    </Form.Select>
+                                                    {validator.message('province', selectedProvinceId, 'required')}
+                                                </div>
+                                                <div className="form-group col-lg-6">
+                                                    <Form.Select
+                                                        onChange={handleDistrictChange}
+                                                        value={selectedDistrictId}
+                                                    >
+                                                        <option value="">District</option>
+                                                        {selectedProvinceId &&
+                                                            provinces.find((province) => province.id === selectedProvinceId).districts.map(district =>
+                                                                <option key={district.id} value={district.id}>
+                                                                    {district.name}
+                                                                </option>
+                                                            )
+                                                        }
+                                                    </Form.Select>
+                                                    {validator.message('district', selectedDistrictId, 'required')}
+                                                </div>
                                             </div>
-                                        </div>
+                                            <div className="form-group">
+                                                <Button
+                                                    className="btn btn-primary btnhover"
+                                                    type="button"
+                                                    onClick={handleNextStepClick}
+                                                >Next <i className="flaticon-right-arrow m-l10"></i>
+                                                </Button>
+                                            </div>
+                                        </>
+                                        :
+                                        <>
+                                            <div className="mb-3 text-secondary">
+                                                {`There are
+                                                    ${selectedDistrictId &&
+                                                    provinces.find((province) => province.id === selectedProvinceId)
+                                                        .districts.find((district) => district.id === selectedDistrictId)
+                                                        .deliveryServices.length}
+                                                    shipping services for this location`}
+                                            </div>
+                                            <div className="mb-4">
+                                                {selectedDistrictId &&
+                                                    provinces.find((province) => province.id === selectedProvinceId)
+                                                    .districts.find((district) => district.id === selectedDistrictId)
+                                                    .deliveryServices.map(deliveryService =>
+                                                        <Form.Check
+                                                        type="radio"
+                                                        name="deliveryService"
+                                                        className="mb-2"
+                                                        id={`service-${deliveryService.id}`}
+                                                        label={`${deliveryService.name} (${deliveryService.estimatedTime})`}
+                                                        value={deliveryService.id}
+                                                        checked={selectedDeliveryServiceId === deliveryService.id}
+                                                        onChange={handleDeliveryServiceChange}
+                                                        />
+                                                    )
+                                                }
+                                                {validator.message('deliveryService', setSelectedDeliveryServiceId, 'required')}
+                                            </div>
+                                            <div className="form-group">
+                                                <Link
+                                                    className="btn btn-primary btnhover"
+                                                    type="button"
+                                                    onClick={() => setCalculateDeliveryStep(1)}
+                                                >Back <i className="flaticon-left-arrow m-l10"></i>
+                                                </Link>
+                                            </div>
+                                        </>
+                                        }
+
                                     </form>
                                     <form className="shop-form" onSubmit={submitCouponForm}>
                                         <h4 className="widget-title">Apply Coupon</h4>
@@ -299,23 +410,30 @@ function ShopCart(){
                                     <table className="table-bordered check-tbl m-b25">
                                         <tbody>
                                             <tr>
-                                                <td style={{width: "46%"}}>Order Subtotal</td>
+                                                <td style={{width: "37%"}}>Order Subtotal</td>
                                                 <td>{formatCurrency(calculateTotal())}</td>
                                             </tr>
                                             <tr>
                                                 <td>Shipping</td>
                                                 <td>
-                                                    {deliveryFee != null ? formatCurrency(deliveryFee) : "(Not calculated)"}
-                                                    {selectedDistrictId &&
-                                                        ` (${provinces.find((province) => province.id === selectedProvinceId).districts.find((district) => district.id === selectedDistrictId).deliveryType})`
+                                                    {selectedService != null ? formatCurrency(selectedService.fee) : "(Not calculated)"}
+                                                    <div className="text-primary">
+                                                    {selectedService &&
+                                                        ` (${selectedService.name} | ${selectedService.type})`
                                                     }
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>Coupon</td>
-                                                <td>{discountAmount > 0
-                                                    ? `- ${formatCurrency(discountAmount)} (${coupon.code})`
-                                                    : "(Not applied)"}</td>
+                                                <td>
+                                                    {discountAmount > 0
+                                                    ? `- ${formatCurrency(discountAmount)}`
+                                                    : "(Not applied)"}
+                                                    <span className="text-primary">
+                                                        {discountAmount > 0 && ` (${coupon.code})`}
+                                                    </span>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>Total</td>

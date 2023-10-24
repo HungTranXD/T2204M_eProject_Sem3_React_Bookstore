@@ -23,6 +23,9 @@ import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
 import {useCart} from "../contexts/CartContext";
 import {toast} from "react-toastify";
+import {useUser} from "../contexts/UserContext";
+import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
+import formatDate from "../utils/datetimeFormatter";
 
 const tableDetail = [
     {tablehead:'Book Title', tabledata:'Think and Grow Rich'},
@@ -72,17 +75,23 @@ function ShopDetail(){
     const { loadingDispatch } = useLoading();
     const { slug } = useParams();
     const [ product, setProduct ] = useState(null);
+    const { likedProductIds, fetchLikedProducts  } = useUser();
 
 
     useEffect(() => {
         fetchProductBySlug();
     }, [slug]);
 
+    useEffect(() => {
+        fetchLikedProducts();
+    }, [])
+
     const fetchProductBySlug = async () => {
         try {
             loadingDispatch({type: 'START_LOADING'});
             const response = await getProductDetail(slug);
             setProduct(response);
+            console.log(response);
         } catch (error) {
             console.log(error);
         } finally {
@@ -107,6 +116,36 @@ function ShopDetail(){
         loadingDispatch({type: 'STOP_LOADING'});
     };
 
+    function calculateStarRating(rating) {
+        const roundedRating = Math.round(rating * 2) / 2; // Round to the nearest 0.5
+        const starRating = [];
+
+        for (let i = 1; i <= 5; i++) {
+            if (roundedRating >= i) {
+                starRating.push(<li key={i}><i className="fas fa-star text-yellow"></i></li>);
+            } else if (roundedRating === i - 0.5) {
+                starRating.push(<li key={i}><i className="fas fa-star-half-alt text-yellow"></i></li>);
+            } else {
+                starRating.push(<li key={i}><i className="far fa-star text-yellow"></i></li>);
+            }
+        }
+
+        return starRating;
+    }
+
+    const handleLikeButton = async (id) => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            await likeOrUnlikeProduct(id);
+            await fetchLikedProducts();
+            toast.success("Like/Unlike successfully")
+        } catch (error) {
+            toast.error("You need to login")
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
     
     return(
         <>
@@ -127,13 +166,9 @@ function ShopDetail(){
                                                 <div
                                                     className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
                                                     <ul className="dz-rating">
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-yellow"></i></li>
-                                                        <li><i className="flaticon-star text-muted"></i></li>
+                                                        {calculateStarRating(parseFloat(product.rating.toFixed(1)))}
                                                     </ul>
-                                                    <h6 className="m-b0">4.0</h6>
+                                                    <h6 className="m-b0">{product.rating.toFixed(1)}</h6>
                                                 </div>
                                                 <div className="social-area">
                                                     <ul className="dz-social-icon style-3">
@@ -225,8 +260,13 @@ function ShopDetail(){
                                                         </>
                                                     }
                                                     <div className="bookmark-btn style-1 d-none d-sm-block">
-                                                        <input className="form-check-input" type="checkbox"
-                                                               id="flexCheckDefault1"/>
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            id="flexCheckDefault1"
+                                                            checked={likedProductIds.includes(product.id)}
+                                                            onClick={() => handleLikeButton(product.id)}
+                                                        />
                                                         <label className="form-check-label"
                                                                htmlFor="flexCheckDefault1">
                                                             <i className="flaticon-heart"></i>
@@ -290,23 +330,40 @@ function ShopDetail(){
                                             <Tab.Pane eventKey="review">
                                                 <div className="clear" id="comment-list">
                                                     <div className="post-comments comments-area style-1 clearfix">
-                                                        <h4 className="comments-title">4 COMMENTS</h4>
+                                                        <h4 className="comments-title">{product && product.reviews.length} REVIEWS</h4>
                                                         <div id="comment">
                                                             <ol className="comment-list">
-                                                                <li className="comment even thread-even depth-1 comment" id="comment-2">
-                                                                    <CommentBlog  title="Michel Poe"  image={profile4} /> 
-                                                                    <ol className="children">
-                                                                        <li className="comment byuser comment-author-w3itexpertsuser bypostauthor odd alt depth-2 comment" id="comment-3">
-                                                                            <CommentBlog  title="Celesto Anderson"  image={profile3} /> 
-                                                                        </li>
-                                                                    </ol>
-                                                                </li>
-                                                                <li className="comment even thread-odd thread-alt depth-1 comment" id="comment-4">
-                                                                    <CommentBlog  title="Ryan"  image={profile2} />
-                                                                </li>
-                                                                <li className="comment odd alt thread-even depth-1 comment" id="comment-5">
-                                                                    <CommentBlog  title="Stuart"  image={profile1} />
-                                                                </li>
+                                                                {/*<li className="comment even thread-even depth-1 comment" id="comment-2">*/}
+                                                                {/*    <CommentBlog  title="Michel Poe"  image={profile4} /> */}
+                                                                {/*    <ol className="children">*/}
+                                                                {/*        <li className="comment byuser comment-author-w3itexpertsuser bypostauthor odd alt depth-2 comment" id="comment-3">*/}
+                                                                {/*            <CommentBlog  title="Celesto Anderson"  image={profile3} /> */}
+                                                                {/*        </li>*/}
+                                                                {/*    </ol>*/}
+                                                                {/*</li>*/}
+                                                                {/*<li className="comment even thread-odd thread-alt depth-1 comment" id="comment-4">*/}
+                                                                {/*    <CommentBlog  title="Ryan"  image={profile2} />*/}
+                                                                {/*</li>*/}
+                                                                {product && product.reviews.map(review =>
+                                                                    <li className="comment odd alt thread-even depth-1 comment">
+                                                                        <div className="comment-body">
+                                                                            <ul className="dz-rating mb-1">
+                                                                                {calculateStarRating(parseFloat(review.rating.toFixed(1)))}
+                                                                            </ul>
+                                                                            <div className="comment-author vcard">
+                                                                                <img src={review.avatar} alt="" className="avatar"/>
+                                                                                <cite className="fn mb-1">
+                                                                                    {review.fname} {review.lname}
+                                                                                    <span className="font-12 text-primary fw-normal m-l10">at {formatDate(review.createdAt).formattedDate}</span>
+                                                                                </cite>
+                                                                            </div>
+                                                                            <div className="comment-content dlab-page-text">
+                                                                                <p>{review.comment}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li>
+                                                                )}
+
                                                             </ol>
                                                         </div>
                                                         <div className="default-form comment-respond style-1" id="respond">

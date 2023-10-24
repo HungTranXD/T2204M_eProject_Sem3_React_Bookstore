@@ -132,11 +132,11 @@ function Footer({footerChange, logoImage}){
 								<div className="widget widget_services">
 									<h5 className="footer-title">Resources</h5>
 									<ul>
-										<li><Link to={"services"}>Download</Link></li>
-										<li><Link to={"help-desk"}>Help Center</Link></li>
-										<li><Link to={"shop-cart"}>Shop Cart</Link></li>
-										<li><Link to={"shop-login"}>Login</Link></li>
-										<li><Link to={"about-us"}>Partner</Link></li>
+										<li><Link to={"/services"}>Download</Link></li>
+										<li><Link to={"/help-desk"}>Help Center</Link></li>
+										<li><Link to={"/shop-cart"}>Shop Cart</Link></li>
+										<li><Link to={"/shop-login"}>Login</Link></li>
+										<li><Link to={"/about-us"}>Partner</Link></li>
 									</ul>
 								</div>
 							</div>

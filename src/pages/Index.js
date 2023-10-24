@@ -41,6 +41,10 @@ import ComingSoon from './ComingSoon';
 //images
 import logo from './../assets/images/logo.png';
 import logoWhite from './../assets/images/logo-white.png';
+import OrderHistory from "./OrderHistory";
+import OrderHistoryDetail from "./OrderHistoryDetail";
+import ReturnRequestHistory from "./ReturnRequestHistory";
+import ReturnRequestDetail from "./ReturnRequestDetail";
 
 function Index(props){
 	var baseName = '';
@@ -69,6 +73,10 @@ function Index(props){
 								<Route path='/' exact component={Home} />
 								<Route path='/about-us' exact component={AboutUs} />
 								<Route path='/my-profile' exact component={MyProfile} />
+								<Route path='/order-history' exact component={OrderHistory} />
+								<Route path='/order-history/:code' exact component={OrderHistoryDetail} />
+								<Route path='/return-requests' exact component={ReturnRequestHistory} />
+								<Route path='/return-requests/:id' exact component={ReturnRequestDetail} />
 								<Route path='/services' exact component={Services} />
 								<Route path='/faq' exact component={Faq} />
 								<Route path='/help-desk' exact component={HelpDesk} />

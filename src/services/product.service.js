@@ -12,7 +12,7 @@ export const getProducts = async (filterCriteria) => {
 }
 
 export const getProductDetail = async (slug) => {
-    const endpoint = `product/slug/${slug}`;
+    const endpoint = `product/${slug}`;
     try {
         const response = await api.get(endpoint);
         return response.data;

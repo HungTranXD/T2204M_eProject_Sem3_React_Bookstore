@@ -31,3 +31,14 @@ export const getProfile = async () => {
         throw error;
     }
 };
+
+export const resetPassword = async (passwordData) => {
+    const endpoint = 'auth/reset-password';
+    try {
+        const response = await api.post(endpoint, passwordData);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};

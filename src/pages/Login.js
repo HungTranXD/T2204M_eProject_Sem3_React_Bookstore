@@ -12,7 +12,6 @@ import { useLocation } from "react-router-dom";
 
 function Login(props){
     const location = useLocation(); // Get the current location
-    const previousPath = location.state?.from || "/"; // Get the previous path from state or default to root
 
     const [forgotPass, setForgotPass] = useState();
 
@@ -43,7 +42,7 @@ function Login(props){
                 authDispatch({ type: 'SET_USER', payload: loginData.user });
                 console.log(loginData);
                 toast.success('You successfully Login!');
-                props.history.push(previousPath);
+                props.history.push("/");
             } catch (error) {
                 toast.error('Wrong email or password!');
             } finally {
