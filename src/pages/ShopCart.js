@@ -147,8 +147,12 @@ function ShopCart(){
         return cartState.cartItems.reduce((total, product) => total + calculateSubtotal(product), 0);
     };
 
+    const calculateVat = () => {
+        return cartState.cartItems.reduce((total, product) => total + calculateSubtotal(product) * product.vatRate / 100, 0);
+    };
+
     const calculateGrandTotal = () => {
-        return calculateTotal() + (selectedService ? selectedService.fee : 0) - discountAmount;
+        return calculateTotal() + calculateVat() + (selectedService ? selectedService.fee : 0) - discountAmount;
     };
 
     const canCheckout = () => {
@@ -181,6 +185,7 @@ function ShopCart(){
                                                 <th>Unit Price</th>
                                                 <th>Quantity</th>
                                                 <th>Total</th>
+                                                <th>VAT</th>
                                                 <th className="text-end">Close</th>
                                             </tr>
                                         </thead>
@@ -221,7 +226,8 @@ function ShopCart(){
                                                             <span className="text-danger font-14">Not enough quantity</span>
                                                         }
                                                     </td>
-                                                    <td className="product-item-totle">{formatCurrency(calculateSubtotal(item))}</td>
+                                                    <td>{formatCurrency(calculateSubtotal(item))}</td>
+                                                    <td>{item.vatRate}%</td>
                                                     <td className="product-item-close">
                                                         <Link className="ti-close" onClick={()=>handleRemoveItem(item.id)}></Link>
                                                     </td>
@@ -412,6 +418,10 @@ function ShopCart(){
                                             <tr>
                                                 <td style={{width: "37%"}}>Order Subtotal</td>
                                                 <td>{formatCurrency(calculateTotal())}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>VAT</td>
+                                                <td>{formatCurrency(calculateVat())}</td>
                                             </tr>
                                             <tr>
                                                 <td>Shipping</td>

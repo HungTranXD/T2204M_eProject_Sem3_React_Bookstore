@@ -1,6 +1,7 @@
 import {formatCurrency} from "../../utils/currencyFormatter";
 import {Link} from "react-router-dom";
 import React from 'react';
+import formatDate from "../../utils/datetimeFormatter";
 
 const OrderPaymentStatus = ({paymentSuccess, setPaymentStatus, createdOrder}) => {
 
@@ -59,6 +60,12 @@ const OrderPaymentStatus = ({paymentSuccess, setPaymentStatus, createdOrder}) =>
                                         ? <span className="fw-bold text-danger">Unpaid</span>
                                         : <span className="fw-bold text-success">Paid</span>
                                     }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Expected Delivery</td>
+                                <td>
+                                    {formatDate(createdOrder.deliveryEstimate).formattedDate}
                                 </td>
                             </tr>
                             </tbody>

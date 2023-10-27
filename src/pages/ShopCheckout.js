@@ -30,55 +30,6 @@ import PaypalCheckoutButton from "../components/Home/PaypalCheckoutButton";
 import OrderPaymentStatus from "../components/Home/OrderPaymentStatus";
 import {useAuth} from "../contexts/AuthContext";
 
-const orderDemo = {
-    "id": 353,
-    "code": "PPL231019095410FUU4",
-    "status": 0,
-    "name": "John Doe",
-    "email": "tranhung02011990@gmail.com",
-    "phone": "0988301477",
-    "address": "No.12, Hamlet 3, Đai Thanh commune",
-    "district": "Nhu Xuan District",
-    "province": "Thanh Hoa",
-    "country": "Vietnam",
-    "subtotal": 105.14,
-    "deliveryFee": 1.32,
-    "deliveryService": "Standard delivery",
-    "couponCode": "PER002",
-    "couponAmount": 21.03,
-    "grandTotal": 85.43,
-    "note": null,
-    "paymentMethod": "PAYPAL",
-    "cancelReason": null,
-    "userId": null,
-    "createdAt": "2023-10-19T09:54:10.233655+07:00",
-    "updatedAt": null,
-    "orderProducts": [
-        {
-            "productId": 1,
-            "productName": "Thunder Stunt",
-            "productSlug": "thunder-stunt",
-            "productThumbnail": "https://res.cloudinary.com/dxcyeb8km/image/upload/v1696384730/eproject-sem3/book16_cdphd7.jpg",
-            "quantity": 1,
-            "price": 54.78,
-            "returnQuantity": null,
-            "reviews": []
-        },
-        {
-            "productId": 2,
-            "productName": "A Heavy Lift",
-            "productSlug": "a-heavy-lift",
-            "productThumbnail": "https://res.cloudinary.com/dxcyeb8km/image/upload/v1696384730/eproject-sem3/book14_ssp7jp.jpg",
-            "quantity": 2,
-            "price": 25.18,
-            "returnQuantity": null,
-            "reviews": []
-        }
-    ],
-    "paymentUrl": null
-}
-
-
 function ShopCheckout() {
     const [registerAccor, setRegisterAccor] = useState(false);
     const [loginAccor, setLoginAccor] = useState();
@@ -275,6 +226,11 @@ function ShopCheckout() {
             if (validator.allValid()) {
                 try {
                     loadingDispatch({type: 'START_LOADING'});
+                    // Estimate delivery date
+                    const today = new Date();
+                    const deliveryEstimate = new Date(today);
+                    deliveryEstimate.setDate(today.getDate() + selectedService.estimatedTimeValue);
+
                     const orderData = {
                         name: formData.firstName + ' ' + formData.lastName,
                         email: formData.email,
@@ -285,8 +241,10 @@ function ShopCheckout() {
                         country: "Vietnam",
                         note: formData.note.trim() === '' ? null : formData.note,
                         subtotal: calculateTotal(),
+                        vat: calculateVat(),
                         deliveryFee: selectedService.fee,
                         deliveryService: formData.deliveryService,
+                        deliveryEstimate: deliveryEstimate.toISOString(),
                         couponCode: discountAmount > 0 ? coupon.code : null,
                         couponAmount: discountAmount > 0 ? discountAmount : null,
                         grandTotal: calculateGrandTotal(),
@@ -296,6 +254,7 @@ function ShopCheckout() {
                             productId: item.id,
                             quantity: item.buy_quantity,
                             price: item.price - item.discountAmount,
+                            vatRate: item.vatRate
                         })),
                     };
                     console.log("orderData", orderData);
@@ -388,8 +347,13 @@ function ShopCheckout() {
         return parseFloat(total.toFixed(2));
     };
 
+    const calculateVat = () => {
+        const total = cartState.cartItems.reduce((total, product) => total + calculateSubtotal(product) * product.vatRate / 100, 0);
+        return parseFloat(total.toFixed(2));
+    };
+
     const calculateGrandTotal = () => {
-        const grandTotal = calculateTotal() + (selectedService ? selectedService.fee : 0) - discountAmount;
+        const grandTotal = calculateTotal() + calculateVat() + (selectedService ? selectedService.fee : 0) - discountAmount;
         return parseFloat(grandTotal.toFixed(2));
     };
 
@@ -708,6 +672,7 @@ function ShopCheckout() {
                                                 <th>PRODUCT NAME</th>
                                                 <th>PRICE</th>
                                                 <th>TOTAL</th>
+                                                <th>VAT</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -729,6 +694,7 @@ function ShopCheckout() {
                                                     <td className="product-price text-center">{formatCurrency(item.price - (item.discountAmount ? item.discountAmount : 0))}</td>
                                                     <td className="product-item-totle text-center"
                                                         style={{minWidth: "unset"}}>{formatCurrency(calculateSubtotal(item))}</td>
+                                                    <td className="text-center">{item.vatRate}%</td>
                                                 </tr>
                                             ))}
                                             </tbody>
@@ -743,6 +709,10 @@ function ShopCheckout() {
                                             <tr>
                                                 <td style={{width: "37%"}}>Order Subtotal</td>
                                                 <td className="product-price">{formatCurrency(calculateTotal())}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>VAT</td>
+                                                <td className="product-price">{formatCurrency(calculateVat())}</td>
                                             </tr>
                                             <tr>
                                                 <td>Shipping</td>

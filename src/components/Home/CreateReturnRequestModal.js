@@ -94,10 +94,19 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
     const calculateSubtotalRefund = () => {
         const selectedReturnProducts = formData.returnProducts.filter((returnProduct) => returnProduct.checked);
         const subtotal = selectedReturnProducts.reduce((total, returnProduct) => {
-            return total + returnProduct.price * returnProduct.returnQuantity;
+            return total + (returnProduct.price) * returnProduct.returnQuantity;
         }, 0);
 
         return subtotal;
+    };
+
+    const calculateVatRefund = () => {
+        const selectedReturnProducts = formData.returnProducts.filter((returnProduct) => returnProduct.checked);
+        const vat = selectedReturnProducts.reduce((total, returnProduct) => {
+            return total + (returnProduct.price) * returnProduct.returnQuantity * returnProduct.vatRate / 100;
+        }, 0);
+
+        return vat;
     };
 
     const calculateMinusCoupon = () => {
@@ -111,7 +120,7 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
     };
 
     const calculateTotalRefund = () => {
-        const total = calculateSubtotalRefund() - calculateMinusCoupon().minusCouponAmount
+        const total = calculateSubtotalRefund() + calculateVatRefund() - calculateMinusCoupon().minusCouponAmount
         return Number(total.toFixed(2));
     }
 
@@ -320,7 +329,8 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
                                         <td
                                             className={`product-item-price text-center ${!returnProduct.checked && 'text-muted'}`}
                                         >
-                                            {formatCurrency(returnProduct.price)}
+                                            {formatCurrency(returnProduct.price)}<br/>
+                                            <span className="font-14 text-primary">({returnProduct.vatRate}% VAT)</span>
                                         </td>
                                         <td
                                             className={`product-item-price text-center ${!returnProduct.checked && 'text-muted'}`}
@@ -385,6 +395,10 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
                                 <tr>
                                     <td style={{width: "80%"}}>Subtotal</td>
                                     <td className="text-end">{formatCurrency(calculateSubtotalRefund())}</td>
+                                </tr>
+                                <tr>
+                                    <td>VAT</td>
+                                    <td className="text-end">{formatCurrency(calculateVatRefund())}</td>
                                 </tr>
                                 <tr>
                                     <td>

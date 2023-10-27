@@ -146,9 +146,151 @@ function ShopDetail(){
         }
     }
 
-    
+
+
+    // -------- THIS IS THE TEST (DELETE AFTER TEST) ---------
+    const productDetail = {
+        id: 1,
+        name: "Chanel Bag",
+        description: "A stylish Chanel bag",
+        price: null,
+        quantity: null,
+        hasVariants: true,
+        thumbnail: "chanel_bag.jpg",
+        productAttributes: [
+            {
+                name: "Color",
+                values: ["Red", "Blue"],
+            },
+            {
+                name: "Size",
+                values: ["Small", "Large"],
+            },
+        ],
+        variants: [
+            {
+                id: 101,
+                attributes: [
+                    {
+                        name: "Color",
+                        value: "Red"
+                    },
+                    {
+                        name: "Size",
+                        value: "Small"
+                    }
+                ],
+                quantity: 10,
+                price: 200
+            },
+            {
+                id: 102,
+                attributes: [
+                    {
+                        name: "Color",
+                        value: "Blue"
+                    },
+                    {
+                        name: "Size",
+                        value: "Small"
+                    }
+                ],
+                quantity: 5,
+                price: 200
+            },
+            {
+                id: 103,
+                attributes: [
+                    {
+                        name: "Color",
+                        value: "Red"
+                    },
+                    {
+                        name: "Size",
+                        value: "Large"
+                    }
+                ],
+                quantity: 8,
+                price: 250
+            },
+            {
+                id: 104,
+                attributes: [
+                    {
+                        name: "Color",
+                        value: "Blue"
+                    },
+                    {
+                        name: "Size",
+                        value: "Large"
+                    }
+                ],
+                quantity: 3,
+                price: 250
+            }
+        ]
+    }
+
+    const [selectedAttributes, setSelectedAttributes] = useState({ Color: "", Size: "" });
+
+    const [selectedVariant, setSelectedVariant] = useState(null);
+
+    useEffect(() => {
+        findVariant();
+    }, [selectedAttributes])
+
+    const findVariant = () => {
+        const result = productDetail.variants.find((variant) =>
+            variant.attributes.every((attribute) => selectedAttributes[attribute.name] === attribute.value)
+        );
+        if (result) {
+            setSelectedVariant(result);
+        } else {
+            setSelectedVariant(null)
+        }
+    }
+
+
+    const handleAttributeChange = (attributeName, attributeValue) => {
+        setSelectedAttributes({
+            ...selectedAttributes,
+            [attributeName]: attributeValue,
+        });
+        console.log(selectedAttributes);
+    };
+
+
     return(
         <>
+            {/*BEGIN TEST SECTION*/}
+            <div className="container">
+                <h1>{productDetail.name}</h1>
+                <p>Price: {selectedVariant ? selectedVariant.price : "Select a variant"}</p>
+                <p>Quantity: {selectedVariant ? selectedVariant.quantity : "Select a variant"}</p>
+
+                {productDetail.productAttributes.map((attribute) => (
+                    <div key={attribute.name}>
+                        <h4>{attribute.name}:</h4>
+                        {attribute.values.map((value) => (
+                            <label key={value} htmlFor={value}>
+                                <input
+                                    type="radio"
+                                    id={value}
+                                    name={attribute.name}
+                                    value={value}
+                                    checked={selectedAttributes[attribute.name] === value}
+                                    onChange={() => handleAttributeChange(attribute.name, value)}
+                                />
+                                {value}
+                            </label>
+                        ))}
+                    </div>
+                ))}
+            </div>
+            {/*END TEST SECTION*/}
+
+
+
             <div className="page-content bg-grey">
                 <section className="content-inner-1">
                     <div className="container">
@@ -275,31 +417,31 @@ function ShopDetail(){
                                                 </div>
                                             </div>
 
-                                            <table className="table table-borderless mt-4" style={{fontSize: "0.9rem"}}>
+                                            <table className="table table-borderless mt-5" style={{fontSize: "0.9rem"}}>
                                                 <tbody>
                                                 <tr className="tags border-0" >
-                                                    <th className="p-0 fw-normal">Categories: </th>
-                                                    <td className="p-0">
+                                                    <th className="px-0 py-1 fw-normal">Categories: </th>
+                                                    <td className="px-0 py-1">
                                                         {product.categories.map((c, index) =>
                                                             <Link key={c.id} to={"#"} className="me-1 text-uppercase">{c.name}{index < product.categories.length-1 ? ", " : " "}</Link>
                                                         )}
                                                     </td>
                                                 </tr>
                                                 <tr className="tags border-0" >
-                                                    <th className="p-0 fw-normal">Quantity: </th>
-                                                    <td className="p-0">
+                                                    <th className="px-0 py-1 fw-normal">Stock: </th>
+                                                    <td className="px-0 py-1">
                                                         {product.quantity} product(s)
                                                     </td>
                                                 </tr>
                                                 <tr className="tags border-0" >
-                                                    <th className="p-0 fw-normal">SKU: </th>
-                                                    <td className="p-0">
-                                                        N/A
+                                                    <th className="px-0 py-1 fw-normal">VAT: </th>
+                                                    <td className="px-0 py-1">
+                                                        {product.vatRate} %
                                                     </td>
                                                 </tr>
                                                 <tr className="tags border-0" >
-                                                    <th className="p-0 fw-normal">Tags: </th>
-                                                    <td className="p-0">
+                                                    <th className="px-0 py-1 fw-normal">Tags: </th>
+                                                    <td className="px-0 py-1">
                                                         {product.tags.map(tag =>
                                                             <Link to={"#"} className="badge me-1">{tag.name}</Link>
                                                         )}
@@ -333,17 +475,6 @@ function ShopDetail(){
                                                         <h4 className="comments-title">{product && product.reviews.length} REVIEWS</h4>
                                                         <div id="comment">
                                                             <ol className="comment-list">
-                                                                {/*<li className="comment even thread-even depth-1 comment" id="comment-2">*/}
-                                                                {/*    <CommentBlog  title="Michel Poe"  image={profile4} /> */}
-                                                                {/*    <ol className="children">*/}
-                                                                {/*        <li className="comment byuser comment-author-w3itexpertsuser bypostauthor odd alt depth-2 comment" id="comment-3">*/}
-                                                                {/*            <CommentBlog  title="Celesto Anderson"  image={profile3} /> */}
-                                                                {/*        </li>*/}
-                                                                {/*    </ol>*/}
-                                                                {/*</li>*/}
-                                                                {/*<li className="comment even thread-odd thread-alt depth-1 comment" id="comment-4">*/}
-                                                                {/*    <CommentBlog  title="Ryan"  image={profile2} />*/}
-                                                                {/*</li>*/}
                                                                 {product && product.reviews.map(review =>
                                                                     <li className="comment odd alt thread-even depth-1 comment">
                                                                         <div className="comment-body">
@@ -366,29 +497,29 @@ function ShopDetail(){
 
                                                             </ol>
                                                         </div>
-                                                        <div className="default-form comment-respond style-1" id="respond">
-                                                            <h4 className="comment-reply-title" id="reply-title">LEAVE A REPLY 
-                                                                <small> 
-                                                                    <Link to={"#"} rel="nofollow" id="cancel-comment-reply-link" style={{display:"none"}}>Cancel reply</Link> 
-                                                                </small>
-                                                            </h4>
-                                                            <div className="clearfix">
-                                                                <form method="post" id="comments_form" className="comment-form" novalidate>
-                                                                    <p className="comment-form-author"><input id="name" placeholder="Author" name="author" type="text" value="" /></p>
-                                                                    <p className="comment-form-email">
-                                                                        <input id="email" required="required" placeholder="Email" name="email" type="email" value="" />
-                                                                    </p>
-                                                                    <p className="comment-form-comment">
-                                                                        <textarea id="comments" placeholder="Type Comment Here" className="form-control4" name="comment" cols="45" rows="3" required="required"></textarea>
-                                                                    </p>
-                                                                    <p className="col-md-12 col-sm-12 col-xs-12 form-submit">
-                                                                        <button id="submit" type="submit" className="submit btn btn-primary filled">
-                                                                        Submit Now <i className="fa fa-angle-right m-l10"></i>
-                                                                        </button>
-                                                                    </p>
-                                                                </form>
-                                                            </div>
-                                                        </div>
+                                                        {/*<div className="default-form comment-respond style-1" id="respond">*/}
+                                                        {/*    <h4 className="comment-reply-title" id="reply-title">LEAVE A REPLY */}
+                                                        {/*        <small> */}
+                                                        {/*            <Link to={"#"} rel="nofollow" id="cancel-comment-reply-link" style={{display:"none"}}>Cancel reply</Link> */}
+                                                        {/*        </small>*/}
+                                                        {/*    </h4>*/}
+                                                        {/*    <div className="clearfix">*/}
+                                                        {/*        <form method="post" id="comments_form" className="comment-form" novalidate>*/}
+                                                        {/*            <p className="comment-form-author"><input id="name" placeholder="Author" name="author" type="text" value="" /></p>*/}
+                                                        {/*            <p className="comment-form-email">*/}
+                                                        {/*                <input id="email" required="required" placeholder="Email" name="email" type="email" value="" />*/}
+                                                        {/*            </p>*/}
+                                                        {/*            <p className="comment-form-comment">*/}
+                                                        {/*                <textarea id="comments" placeholder="Type Comment Here" className="form-control4" name="comment" cols="45" rows="3" required="required"></textarea>*/}
+                                                        {/*            </p>*/}
+                                                        {/*            <p className="col-md-12 col-sm-12 col-xs-12 form-submit">*/}
+                                                        {/*                <button id="submit" type="submit" className="submit btn btn-primary filled">*/}
+                                                        {/*                Submit Now <i className="fa fa-angle-right m-l10"></i>*/}
+                                                        {/*                </button>*/}
+                                                        {/*            </p>*/}
+                                                        {/*        </form>*/}
+                                                        {/*    </div>*/}
+                                                        {/*</div>*/}
                                                     </div>
                                                 </div>
                                                 
