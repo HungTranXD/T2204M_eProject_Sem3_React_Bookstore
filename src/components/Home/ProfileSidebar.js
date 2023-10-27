@@ -42,7 +42,7 @@ function ProfileSidebar({user}) {
                         </Link>
                     </li>
                     <li>
-                        <Link to={"my-profile"} className="">
+                        <Link to={"/my-address"} className={location.pathname.startsWith('/my-address') ? 'active' : ''}>
                             <i className="fas fa-map-marker-alt"></i>
                             <span>Addresses</span>
                         </Link>

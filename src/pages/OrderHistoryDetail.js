@@ -136,6 +136,11 @@ function OrderHistoryDetail(){
                                                                         {formatDate(order.updatedAt ? order.updatedAt : order.createdAt).formattedDate}
                                                                     </span>
                                                                     }
+                                                                    {order.status < 4 && order.deliveryEstimate &&
+                                                                        <span className="text-black-50">
+                                                                        {formatDate(order.deliveryEstimate).formattedDate}
+                                                                    </span>
+                                                                    }
                                                                 </p>
                                                             </div>
                                                             <div
@@ -304,7 +309,7 @@ function OrderHistoryDetail(){
                                                                         {order.address}, {order.district}, {order.province}, {order.country}
                                                                     </td>
                                                                 </tr>
-                                                                <tr className="py-1">
+                                                                <tr className="py-1 border-bottom">
                                                                     <td className="px-0 py-3 text-muted">
                                                                         <div className="d-flex align-items-center">
                                                                             <i className="fas fa-shipping-fast me-2"></i>
@@ -313,6 +318,17 @@ function OrderHistoryDetail(){
                                                                     </td>
                                                                     <td className="px-0 py-3 text-end">
                                                                         {order.deliveryService}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr className="py-1">
+                                                                    <td className="px-0 py-3 text-muted">
+                                                                        <div className="d-flex align-items-center">
+                                                                            <i className="fas fa-truck-loading me-2"></i>
+                                                                            Expected Delivery Date
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-0 py-3 text-end">
+                                                                        {formatDate(order.deliveryEstimate).formattedDate}
                                                                     </td>
                                                                 </tr>
                                                                 </tbody>
@@ -330,7 +346,8 @@ function OrderHistoryDetail(){
                                                         <th style={{width: "40%"}}>Product name</th>
                                                         <th>Unit Price</th>
                                                         <th className="text-center">Quantity</th>
-                                                        <th className="text-end">Total</th>
+                                                        <th className="text-center">Total</th>
+                                                        <th className="text-end">VAT</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -354,8 +371,11 @@ function OrderHistoryDetail(){
                                                                     <td className="text-center">
                                                                         {product.quantity}
                                                                     </td>
-                                                                    <td className="text-end">
+                                                                    <td className="text-center">
                                                                         {formatCurrency(product.price * product.quantity)}
+                                                                    </td>
+                                                                    <td className="text-end">
+                                                                        {product.vatRate}%
                                                                     </td>
                                                                 </tr>
                                                             ))}
@@ -374,6 +394,10 @@ function OrderHistoryDetail(){
                                                             <tr>
                                                                 <td className="">Subtotal</td>
                                                                 <td className="text-end ">{formatCurrency(order.subtotal)}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className="">VAT</td>
+                                                                <td className="text-end ">{formatCurrency(order.vat)}</td>
                                                             </tr>
                                                             <tr>
                                                                 <td className="">Shipping</td>
@@ -407,9 +431,9 @@ function OrderHistoryDetail(){
 
                                                 {/* Case 1: If order is not ship yet (status <= 2) you can cancel order */}
                                                 {order.status <= 2 &&
-                                                    <>
+                                                    <div className="col-12">
                                                         <button
-                                                            className="btn btn-danger"
+                                                            className="btn btn-danger w-100"
                                                             onClick={() => setModalShow(true)}
                                                         >Cancel Order
                                                         </button>
@@ -419,7 +443,7 @@ function OrderHistoryDetail(){
                                                             order={order}
                                                             fetchOrderDetail={fetchOrderDetail}
                                                         />
-                                                    </>
+                                                    </div>
                                                 }
 
                                                 {/* Case 2: If order is delivered (status = 4), still within 3 days return period and now return request created yet */}

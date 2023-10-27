@@ -306,7 +306,7 @@ function MyProfile(){
 
 
                                         <div className="shop-bx-title clearfix mt-5">
-                                            <h5 className="text-uppercase">Reset Password</h5>
+                                            <h5 className="text-uppercase">Change Password</h5>
                                         </div>
                                         <form onSubmit={submitResetPasswordForm}>
                                             <div className="row">

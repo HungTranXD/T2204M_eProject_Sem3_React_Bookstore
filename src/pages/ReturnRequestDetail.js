@@ -15,7 +15,6 @@ function ReturnRequestDetail(){
     const { id } = useParams();
     const { user } = useUser();
     const [ request, setRequest ] = useState(null);
-    const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
         fetchReturnRequestDetail();
@@ -37,6 +36,12 @@ function ReturnRequestDetail(){
     const calculateSubtotalRefund = () => {
         return request.returnProducts.reduce((total, returnProduct) => {
             return total + returnProduct.price * returnProduct.returnQuantity;
+        }, 0);
+    };
+
+    const calculateVatRefund = () => {
+        return request.returnProducts.reduce((total, returnProduct) => {
+            return total + returnProduct.price * returnProduct.returnQuantity * returnProduct.vatRate / 100;
         }, 0);
     };
 
@@ -144,6 +149,32 @@ function ReturnRequestDetail(){
                                                                     </span>
                                                                     }
                                                                 </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            {request.response &&
+                                                <div className="row">
+                                                    <div className="col-12">
+                                                        <div className="card border rounded-2 text-secondary">
+                                                            <div className="card-body">
+                                                                <table className="table table-borderless">
+                                                                    <tbody className="">
+                                                                    <tr className="py-1">
+                                                                        <td className="px-0 py-3 text-muted">
+                                                                            <div className="d-flex align-items-center">
+                                                                                <i className="fas fa-reply me-2"></i>
+                                                                                Seller Response
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-0 py-3 text-end">
+                                                                            {request.response}
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -267,7 +298,8 @@ function ReturnRequestDetail(){
                                                         <th style={{width: "40%"}}>Return Product</th>
                                                         <th>Unit Price</th>
                                                         <th className="text-center">Quantity</th>
-                                                        <th className="text-end">Total</th>
+                                                        <th className="text-center">Total</th>
+                                                        <th className="text-end">VAT</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -287,8 +319,11 @@ function ReturnRequestDetail(){
                                                                     <td className="text-center">
                                                                         {product.returnQuantity}
                                                                     </td>
-                                                                    <td className="text-end">
+                                                                    <td className="text-center">
                                                                         {formatCurrency(product.price * product.returnQuantity)}
+                                                                    </td>
+                                                                    <td className="text-end">
+                                                                        {product.vatRate}%
                                                                     </td>
                                                                 </tr>
                                                             ))}
@@ -309,11 +344,15 @@ function ReturnRequestDetail(){
                                                                 <td className="text-end">{formatCurrency(calculateSubtotalRefund())}</td>
                                                             </tr>
                                                             <tr>
+                                                                <td>VAT </td>
+                                                                <td className="text-end">{formatCurrency(calculateVatRefund())}</td>
+                                                            </tr>
+                                                            <tr>
                                                                 <td className="">
                                                                     Minus Coupon
                                                                 </td>
                                                                 <td className="text-end">
-                                                                    {formatCurrency(calculateMinusCoupon())}
+                                                                    - {formatCurrency(calculateMinusCoupon())}
                                                                 </td>
                                                             </tr>
                                                             <tr>

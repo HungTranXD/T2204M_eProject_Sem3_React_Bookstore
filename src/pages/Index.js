@@ -45,6 +45,7 @@ import OrderHistory from "./OrderHistory";
 import OrderHistoryDetail from "./OrderHistoryDetail";
 import ReturnRequestHistory from "./ReturnRequestHistory";
 import ReturnRequestDetail from "./ReturnRequestDetail";
+import MyAddress from "./MyAddress";
 
 function Index(props){
 	var baseName = '';
@@ -77,6 +78,7 @@ function Index(props){
 								<Route path='/order-history/:code' exact component={OrderHistoryDetail} />
 								<Route path='/return-requests' exact component={ReturnRequestHistory} />
 								<Route path='/return-requests/:id' exact component={ReturnRequestDetail} />
+								<Route path='/my-address' exact component={MyAddress} />
 								<Route path='/services' exact component={Services} />
 								<Route path='/faq' exact component={Faq} />
 								<Route path='/help-desk' exact component={HelpDesk} />
