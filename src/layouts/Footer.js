@@ -23,22 +23,6 @@ function heartToggle(){
 //	//elem.style.height = "400px";
 //}
 
-const accordList = [
-	{name:'Architecture'},{name:'Art'},{name:'Action'},{name:'Biography'},
-	{name:'Body, Mind & Spirit'},{name:'Business & Economics'},
-	{name:'Children Fiction'},{name:'Children Non-Fiction'},
-	{name:'Comics & Graphics'},{name:'Cooking'},
-	{name:'Crafts & Hobbies'},{name:'Design'},
-	{name:'Drama'},{name:'Education'},
-	{name:'Family & Relationships'},{name:'Fiction'},
-	{name:'Foreign Language'},{name:'Games'},
-	{name:'Gardening'},{name:'Health & Fitness'},
-	{name:'History'},{name:'House & Home'},
-	{name:'Humor'},{name:'Literary Collections'},
-	{name:'Mathematics'},{name:'Medical'},
-	{name:'Nature'},{name:'Performing Arts'},
-	{name:'Pets'},{name:'Show others'}
-];
 
 function Footer({footerChange, logoImage}){
 	//const [open, setOpen] = useState(false);
@@ -93,7 +77,7 @@ function Footer({footerChange, logoImage}){
 									<div className="footer-logo logo-white">
 										<Link to={""}><img src={logoImage} alt="" /></Link> 
 									</div>
-									<p className="text">Bookland is a Book Store Ecommerce Website Template by DexignZone lorem ipsum dolor sit</p>
+									<p className="text">Shradha-Book is a official website of Shradha General Book Store</p>
 									<div className="dz-social-icon style-1">
 										<ul>
 											<li><a href="https://www.facebook.com/dexignzone" target="_blank" rel="noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
@@ -108,33 +92,30 @@ function Footer({footerChange, logoImage}){
 								<div className="widget widget_services">
 									<h5 className="footer-title">Our Links</h5>
 									<ul>
-										<li><Link to={"about-us"}>About us</Link></li>
-										<li><Link to={"contact-us"}>Contact us</Link></li>
-										<li><Link to={"privacy-policy"}>Privacy Policy</Link></li>
-										<li><Link to={"pricing"}>Pricing Table</Link></li>
-										<li><Link to={"faq"}>FAQ</Link></li>
+										<li><Link to={"/about-us"}>About us</Link></li>
+										<li><Link to={"/contact-us"}>Contact us</Link></li>
+										<li><Link to={"/privacy-policy"}>Privacy Policy</Link></li>
+										<li><Link to={"/faq"}>FAQ</Link></li>
 									</ul>
 								</div>
 							</div>
 							<div className="col-xl-2 col-lg-3 col-sm-4 col-4 wow fadeInUp" data-wow-delay="0.3s">
 								<div className="widget widget_services">
-									<h5 className="footer-title">Bookland ?</h5>
+									<h5 className="footer-title">ShradhaBook</h5>
 									<ul>
-										<li><Link to={""}>Bookland</Link></li>
-										<li><Link to={"services"}>Services</Link></li>
-										<li><Link to={"shop-detail"}>Book Details</Link></li>
-										<li><Link to={"blog-detail"}>Blog Details</Link></li>
-										<li><Link to={"books-grid-view"}>Shop</Link></li>
-									</ul>   
+										<li><Link to={"/"}>Home</Link></li>
+										<li><Link to={"/services"}>Services</Link></li>
+										<li><Link to={"/books-grid-view-sidebar"}>Books & Other</Link></li>
+										<li><Link to={"/blog-large-sidebar"}>Blogs</Link></li>
+									</ul>
 								</div>
 							</div>
 							<div className="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 wow fadeInUp" data-wow-delay="0.4s">
 								<div className="widget widget_services">
 									<h5 className="footer-title">Resources</h5>
 									<ul>
-										<li><Link to={"/services"}>Download</Link></li>
+										<li><Link to={"/order-tracking"}>Order Tracking</Link></li>
 										<li><Link to={"/help-desk"}>Help Center</Link></li>
-										<li><Link to={"/shop-cart"}>Shop Cart</Link></li>
 										<li><Link to={"/shop-login"}>Login</Link></li>
 										<li><Link to={"/about-us"}>Partner</Link></li>
 									</ul>
@@ -146,17 +127,17 @@ function Footer({footerChange, logoImage}){
 									<ul>
 										<li>
 											<i className="flaticon-placeholder"></i>
-											<span>832  Thompson Drive, San Fransisco CA 94107,US</span>
+											<span>8 Ton That Thuyet, My Dinh 2, Hanoi, Vietname</span>
 										</li>
 										<li>
 											<i className="flaticon-phone"></i>
-											<span>+123 345123 556<br/>
-											+123 345123 556</span>
+											<span>+123 34567 890<br/>
+											+123 34567 890</span>
 										</li>
 										<li>
 											<i className="flaticon-email"></i> 
-											<span>support@bookland.id<br/>
-											info@bookland.id</span>
+											<span>support@sharadha.com<br/>
+											info@sharadha.com</span>
 										</li>
 									</ul>
 								</div>
@@ -164,21 +145,7 @@ function Footer({footerChange, logoImage}){
 						</div>
 					</div>
 				</div>
-				<div className="footer-bottom">
-					<div className="container">
-						<div className="row fb-inner">
-							<div className="col-lg-6 col-md-12 text-start"> 
-								<p className="copyright-text">Bookland Book Store Ecommerce Website - © 2022 All Rights Reserved</p>
-							</div>
-							<div className="col-lg-6 col-md-12 text-end"> 
-								<p>Made with <span className="heart"
-									onClick={heartToggle}
-								></span> by 
-								<a href="https://dexignzone.com/" target="_blank"> DexignZone</a></p>
-							</div>
-						</div>
-					</div>
-				</div>
+
 			</footer>			
 		</>
 	)

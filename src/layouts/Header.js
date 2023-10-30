@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import {Dropdown} from 'react-bootstrap';
 //images
 
-import logo from './../assets/images/logo.png';
+import logo from './../assets/images/logo_new.png';
 import profile from './../assets/images/profile-yellow.png';
 import pic1 from './../assets/images/books/small/pic1.jpg';
 import pic2 from './../assets/images/books/small/pic2.jpg';
@@ -19,7 +19,13 @@ import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
 
 function Header(){
-	const [selectBtn, setSelectBtn] = useState('Category');
+	// ----------------------------- SEARCH INPUT -------------------------------
+	const [selectedCategory, setSelectedCategory] = useState({
+		id: null,
+		name: 'All Categories'
+	});
+	const [searchString, setSearchString] = useState('');
+
 	const categories = useCategories();
 
 
@@ -87,7 +93,10 @@ function Header(){
 			<React.Fragment>
 				{categories.map((category) => (
 					<React.Fragment key={category.id}>
-						<Dropdown.Item onClick={() => setSelectBtn(category.name)}>
+						<Dropdown.Item onClick={() => setSelectedCategory({
+							id: category.id,
+							name: category.name
+						})}>
 							{prefix} {category.name}
 						</Dropdown.Item>
 						{category.subCategories.length > 0 &&
@@ -218,33 +227,23 @@ function Header(){
 					<div className="header-search-nav">
 						<form className="header-item-search">
 							<div className="input-group search-input">
-								{/*<select className="default-select">
-									<option>Category</option>
-									<option>Photography </option>
-									 <option>Arts</option>
-									<option>Adventure</option>
-									<option>Action</option>
-									<option>Games</option>
-									<option>Movies</option>
-									<option>Comics</option>
-									<option>Biographies</option>
-									<option>Children’s Books</option>
-									<option>Historical</option>
-									<option>Contemporary</option>
-									<option>Classics</option>
-									<option>Education</option> 
-								</select> */}
 								<Dropdown className="dropdown bootstrap-select default-select drop-head ">
-									<Dropdown.Toggle  as="div" className="i-false">{selectBtn} 										
+									<Dropdown.Toggle  as="div" className="i-false">{selectedCategory.name}
 									 	<i className="ms-4 font-10 fa-solid fa-chevron-down"></i>
 									</Dropdown.Toggle>
 									<Dropdown.Menu style={{ maxHeight: "50vh", overflowY: "auto" }}>
-										<Dropdown.Item onClick={() => setSelectBtn("All")}>
-											All
+										<Dropdown.Item onClick={() => setSelectedCategory({
+											id: null,
+											name: "All Categories"
+										})}>
+											All categories
 										</Dropdown.Item>
 										{categories.map((category) => (
 											<React.Fragment key={category.id}>
-												<Dropdown.Item onClick={() => setSelectBtn(category.name)}>
+												<Dropdown.Item onClick={() => setSelectedCategory({
+													id: category.id,
+													name: category.name
+												})}>
 													{category.name}
 												</Dropdown.Item>
 												{category.subCategories.length > 0 &&
@@ -253,8 +252,20 @@ function Header(){
 										))}
 									</Dropdown.Menu>
 								</Dropdown>
-								<input type="text" className="form-control" aria-label="Text input with dropdown button" placeholder="Search Books Here" />
-								<button className="btn" type="button"><i className="flaticon-loupe"></i></button>
+								<input
+									type="text"
+									className="form-control"
+									aria-label="Text input with dropdown button"
+									placeholder="Search Products Here"
+									value={searchString}
+									onChange={(e) => setSearchString(e.target.value)}
+								/>
+								<Link
+									className="btn"
+									to={`/books-list/${selectedCategory.id}/${searchString}`}
+								>
+									<i className="flaticon-loupe"></i>
+								</Link>
 							</div>
 						</form>
 					</div>
@@ -278,7 +289,7 @@ function Header(){
 						{/* <!-- EXTRA NAV --> */}
 						<div className="extra-nav">
 							<div className="extra-cell">
-								<Link to={"contact-us"} className="btn btn-primary btnhover">Get In Touch</Link>	
+								<Link to={"/order-tracking"} className="btn btn-primary btnhover">Order Tracking</Link>
 							</div>
 						</div>
 						

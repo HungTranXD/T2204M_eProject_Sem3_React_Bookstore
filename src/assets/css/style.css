@@ -1,8 +1,7 @@
 @charset "UTF-8";
 /*
-    Name: Bookland 
-    Author: DexignZone
-    Portfolio : https://themeforest.net/user/dexignzone/portfolio
+    Name: Shradha
+
    
     Table of Content: 
 
@@ -25021,4 +25020,13 @@ input[type=radio] + label, input[type=checkbox] + label {
 .avatar-container .delete-icon:hover {
   background-color: deeppink;
   color: white;
+}
+
+.truncate-3-lines {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
 }

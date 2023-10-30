@@ -39,8 +39,8 @@ import ComingSoon from './ComingSoon';
 
 
 //images
-import logo from './../assets/images/logo.png';
-import logoWhite from './../assets/images/logo-white.png';
+import logo from './../assets/images/logo_new.png';
+import logoWhite from './../assets/images/logo-white_new.png';
 import OrderHistory from "./OrderHistory";
 import OrderHistoryDetail from "./OrderHistoryDetail";
 import ReturnRequestHistory from "./ReturnRequestHistory";
@@ -85,7 +85,7 @@ function Index(props){
 								<Route path='/pricing' exact component={Pricing} />
 								<Route path='/privacy-policy' exact component={PrivacyPolicy} />
 								<Route path='/books-grid-view' exact component={BooksGridView} />
-								<Route path='/books-list' exact component={ShopList} />
+								<Route path='/books-list/:categoryId/:searchString' exact component={ShopList} />
 								<Route path='/books-grid-view-sidebar' exact component={BooksGridViewSidebar} />
 								<Route path='/books-list-view-sidebar' exact component={BooksListViewSidebar} />
 								<Route path='/shop-cart' exact component={ShopCart} />

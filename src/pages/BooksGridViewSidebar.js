@@ -32,51 +32,6 @@ import {useCart} from "../contexts/CartContext";
 import {useUser} from "../contexts/UserContext";
 import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
 
-const lableBlogData = [
-    {name:'Architecture'},
-    {name:'Art'},
-    {name:'Action'},
-    {name:'Biography & Autobiography'},
-    {name:'Body, Mind & Spirit'},
-    {name:'Business & Economics'},    
-    {name:'Children Fiction'},
-    {name:'Children Non-Fiction'},
-    {name:'Comics & Graphic Novels'},
-    {name:'Cooking'},
-    {name:'Crafts & Hobbies'},
-    {name:'Design'},
-    {name:'Drama'},
-    {name:'Education'},
-    {name:'Family & Relationships'},
-    {name:'Fiction'},
-    {name:'Foreign Language Study'},
-    {name:'Games'},
-    {name:'Gardening'},
-    {name:'Health & Fitness'},
-    {name:'History'},
-    {name:'House & Home'},
-    {name:'Humor'},
-    {name:'Literary Collections'},
-    {name:'Mathematics'}
-];
-
-const cardDetials = [
-    {image:book16, title:'Thunder Stunt', subtitle1:'ADVANTURE',subtitle2:'SCIENCE', price1:'54.78', price2:'70.00' },
-    {image:book14, title:'A Heavy Lift', subtitle1:'RACING',subtitle2:'DRAMA', price1:'25.18', price2:'68.00' },
-    {image:book15, title:'Terrible Madness', subtitle1:'SPORTS',subtitle2:'GAME', price1:'25.30', price2:'38.00' },
-    {image:book4, title:'Such Fun Age', subtitle1:'ADVANTURE', price1:'20.15', price2:'33.00' },
-    {image:book9, title:'Pushing Clouds', subtitle1:'ADVANTURE', price1:'30.12', price2:'40.00' },
-    {image:book2, title:'Homie', subtitle1:'HORROR',subtitle2:'DRAMA', price1:'15.25', price2:'45.00' },
-    {image:book7, title:'SECONDS', subtitle1:'SPORTS',subtitle2:'GAME', price1:'21.78', price2:'36.00' },
-    {image:book13, title:'REWORK', subtitle1:'THRILLER', price1:'23.20', price2:'49.00' },
-    {image:book11, title:'ALL GOOD NEWS', subtitle1:'DRAMA',subtitle2:'COMEDY', price1:'40.78', price2:'68.00' },
-    {image:book10, title:'Emily The Back', subtitle1:'DRAMA',subtitle2:'SIRIAL', price1:'54.78', price2:'63.00' },
-    {image:book8, title:'The Adventure', subtitle1:'BIOGRAPHY', price1:'37.00', price2:'47.00' },
-    {image:book14, title:'A Heavy Lift', subtitle1:'STORY',subtitle2:'BIOGRAPHY', price1:'22.00', price2:'51.00' },
-];
-
-
-
 function BooksGridViewSidebar(){
     const [accordBtn, setAccordBtn] = useState();
     const [selectBtn, setSelectBtn] = useState('Newest');
@@ -204,7 +159,7 @@ function BooksGridViewSidebar(){
                             </div>
                             <div className={showSidebar ? "col-xl-9" : "col-12"}>
                                 <div className="d-flex justify-content-between align-items-center">
-                                    <h4 className="title">Books</h4>
+                                    <h4 className="title">Products</h4>
                                     <Link
                                         className="btn btn-primary panel-btn"
                                         onClick={() => setShowSidebar(!showSidebar)}
@@ -319,7 +274,7 @@ function BooksGridViewSidebar(){
                                                     </label>
                                                 </div>
                                                 <div className="dz-content">
-                                                    <h5 className="title"><Link to={`shop-detail/${product.slug}`}>{product.name}</Link></h5>
+                                                    <h5 className="title"><Link to={`/shop-detail/${product.slug}`}>{product.name}</Link></h5>
                                                     <ul className="dz-tags text-uppercase" style={{overflowX: "hidden", whiteSpace: "nowrap", display: "block" }}>
                                                         {product.categories.map((category, index) =>
                                                             <li

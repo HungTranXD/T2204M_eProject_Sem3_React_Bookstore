@@ -40,7 +40,7 @@ function Index1(){
 				<section className="content-inner-1 bg-grey reccomend">
 					<div className="container">
 						<div className="section-head text-center">
-							<h2 className="title">Recomended For You</h2>
+							<h2 className="title">Newest In Store</h2>
 							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</p>
 						</div>
 						<RecomendedSlider />

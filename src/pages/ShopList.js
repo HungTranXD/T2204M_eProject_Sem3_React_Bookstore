@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useParams} from 'react-router-dom';
 import {Collapse, Dropdown} from 'react-bootstrap';
 
 //Component
@@ -53,6 +53,8 @@ const cardDetials = [
 ];
 
 function ShopList(){
+    const { categoryId, searchString } = useParams();
+
     const [accordBtn, setAccordBtn] = useState();
     const [selectBtn, setSelectBtn] = useState('Newest');
     return(
@@ -61,7 +63,7 @@ function ShopList(){
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Books</h4>
+                            <h4 className="title">Books categoryId = {categoryId} - search {searchString}</h4>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">
