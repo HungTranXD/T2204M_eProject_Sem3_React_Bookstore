@@ -29,7 +29,18 @@ export const getProductDetail = async (slug) => {
         return response.data;
     } catch (error) {
         console.log(error);
-        return {};
+        throw error;
+    }
+}
+
+export const getRelatedProducts = async (productId, limit) => {
+    const endpoint = `product/related-products/${productId}`;
+    try {
+        const response = await api.get(endpoint, {params: {limit}});
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 }
 

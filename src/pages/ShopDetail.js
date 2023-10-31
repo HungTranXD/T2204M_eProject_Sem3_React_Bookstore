@@ -18,7 +18,7 @@ import book15 from './../assets/images/books/grid/book15.jpg';
 import book3 from './../assets/images/books/grid/book3.jpg';
 import book5 from './../assets/images/books/grid/book5.jpg';
 import {useLoading} from "../contexts/LoadingContext";
-import {getProductDetail} from "../services/product.service";
+import {getProductDetail, getRelatedProducts} from "../services/product.service";
 import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
 import {useCart} from "../contexts/CartContext";
@@ -75,12 +75,17 @@ function ShopDetail(){
     const { loadingDispatch } = useLoading();
     const { slug } = useParams();
     const [ product, setProduct ] = useState(null);
+    const [ relatedProducts, setRelatedProducts ] = useState([]);
     const { likedProductIds, fetchLikedProducts  } = useUser();
 
 
     useEffect(() => {
         fetchProductBySlug();
     }, [slug]);
+
+    useEffect(() => {
+        fetch3RelatedProducts();
+    }, [product]);
 
     useEffect(() => {
         fetchLikedProducts();
@@ -91,6 +96,18 @@ function ShopDetail(){
             loadingDispatch({type: 'START_LOADING'});
             const response = await getProductDetail(slug);
             setProduct(response);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loadingDispatch({type: 'STOP_LOADING'});
+        }
+    }
+
+    const fetch3RelatedProducts = async () => {
+        try {
+            loadingDispatch({type: 'START_LOADING'});
+            const response = await getRelatedProducts(product.id, 3);
+            setRelatedProducts(response);
             console.log(response);
         } catch (error) {
             console.log(error);
@@ -98,7 +115,8 @@ function ShopDetail(){
             loadingDispatch({type: 'STOP_LOADING'});
         }
     }
-    const handleAddToCart = () => {
+
+    const handleAddToCart = (product, buy_quantity) => {
         if (buy_quantity <= 0 || buy_quantity > product.quantity) {
             toast.error('Not enough quantity!');
             return;
@@ -394,7 +412,7 @@ function ShopDetail(){
                                                                 <i className="ti-minus"></i>
                                                             </button>
                                                         </div>
-                                                        <Link onClick={handleAddToCart}
+                                                        <Link onClick={() => handleAddToCart(product, buy_quantity)}
                                                         className="btn btn-primary btnhover btnhover2"><i
                                                         className="flaticon-shopping-cart-1"></i>
                                                         <span>Add to cart</span>
@@ -530,26 +548,40 @@ function ShopDetail(){
                             </div>
                             <div className="col-xl-4 mt-5 mt-xl-0">
                                 <div className="widget">
-                                    <h4 className="widget-title">Related Books</h4>
+                                    <h4 className="widget-title">Related Products</h4>
                                     <div className="row">
-                                        {relatedBook.map((data, index)=>(
-                                            <div className="col-xl-12 col-lg-6" key={index}>
+                                        {relatedProducts.length > 0 && relatedProducts.map((product)=>(
+                                            <div className="col-xl-12 col-lg-6" key={product.id}>
                                                 <div className="dz-shop-card style-5">
                                                     <div className="dz-media">
-                                                        <img src={data.image} alt="" /> 
+                                                        <img src={addAutoWidthTransformation(product.thumbnail)} alt="" />
                                                     </div>
                                                     <div className="dz-content">
-                                                        <h5 className="subtitle">{data.title}</h5>
-                                                        <ul className="dz-tags">
-                                                            <li>THRILLE,</li>
-                                                            <li>DRAMA,</li>
-                                                            <li>HORROR</li>
+                                                        <h5 className="subtitle">{product.name}</h5>
+                                                        <ul className="dz-tags text-uppercase" style={{overflow: "hidden", whiteSpace: "nowrap", display: "block", maxWidth: "200px"}}>
+                                                            {product.categories.map((category, index) =>
+                                                                <li
+                                                                    key={category.id} className="d-inline-block">
+                                                                    {category.name}{index < product.categories.length - 1 && ","}
+                                                                </li>
+                                                            )}
                                                         </ul>
-                                                        <div className="price">
-                                                            <span className="price-num">$45.4</span>
-                                                            <del>$98.4</del>
-                                                        </div>
-                                                        <Link to={"shop-cart"} className="btn btn-outline-primary btn-sm btnhover btnhover2"><i className="flaticon-shopping-cart-1 me-2"></i> Add to cart</Link>
+                                                        {product.discountAmount ?
+                                                            <div className="price">
+                                                                <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                                <del>{formatCurrency(product.price)}</del>
+                                                            </div>
+                                                            :
+                                                            <div className="price">
+                                                                <span className="price-num">{formatCurrency(product.price)}</span>
+                                                            </div>
+                                                        }
+                                                        <Link
+                                                            className="btn btn-outline-primary btn-sm btnhover btnhover2"
+                                                            onClick={() => handleAddToCart(product, 1)}
+                                                        >
+                                                            <i className="flaticon-shopping-cart-1 me-2"></i> Add to cart
+                                                        </Link>
                                                     </div>
                                                 </div>
                                             </div>   
