@@ -11,10 +11,10 @@ export const postOrder = async (orderData) => {
     }
 }
 
-export const getOrderDetail = async (code) => {
-    const endpoint = `order/${code}`;
+export const getOrderTracking = async ({code, email}) => {
+    const endpoint = `order/order-tracking`;
     try {
-        const response = await api.get(endpoint);
+        const response = await api.get(endpoint, { params: {code, email} });
         return response.data;
     } catch (error) {
         console.log(error);

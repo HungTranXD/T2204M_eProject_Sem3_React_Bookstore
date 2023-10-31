@@ -11,6 +11,17 @@ export const getProducts = async (filterCriteria) => {
     }
 }
 
+export const searchProducts = async (categoryId, searchString, page, pageSize) => {
+    const endpoint = 'product/search';
+    try {
+        const response = await api.get(endpoint, { params: {categoryId, searchString, page, pageSize} });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching searched products:', error);
+        throw error;
+    }
+}
+
 export const getProductDetail = async (slug) => {
     const endpoint = `product/${slug}`;
     try {

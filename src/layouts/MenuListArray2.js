@@ -1,20 +1,21 @@
 export const MenuListArray2 = [
     {
         title: 'Home',
-        to: './',
+        to: '/',
     },
     {
-        title: 'Books & Other Products',
-        to: './books-grid-view-sidebar'
+        title: 'Books & Other',
+        to: '/books-grid-view-sidebar'
     },
     {
         title: 'Blogs',
-        to: './blog-large-sidebar'
+        to: '/blog-large-sidebar'
     },
     {
         title: 'About Us',	
-        to: './about-us',
+        to: '/about-us',
     },
+
     // {
     //     title: 'Pages',
     //     classsChange: 'sub-menu-down',
@@ -127,8 +128,12 @@ export const MenuListArray2 = [
     //
     //     ],
     // },
+    // {
+    //     title: 'Contact Us',
+    //     to: './contact-us',
+    // },
     {
-        title: 'Contact Us',	
-        to: './contact-us',
+        title: 'Order Tracking',
+        to: '/order-tracking',
     },
 ]

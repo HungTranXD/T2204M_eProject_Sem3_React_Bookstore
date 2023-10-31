@@ -13,7 +13,7 @@ const ContactUs = () =>{
 	const sendEmail = (e) => {
 		e.preventDefault();
 		//emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', form.current, 'YOUR_USER_ID')
-		emailjs.sendForm('service_gfykn6i', 'template_iy1pb0b', e.target, 'HccoOtZS6GHw-N-m6')
+		emailjs.sendForm('service_8aqfz2i', 'template_8mm4qj8', e.target, 'VpOPqv2vPuJAfJr_1')
 		  .then((result) => {
 			  console.log(result.text);
 		  }, (error) => {
@@ -28,7 +28,7 @@ const ContactUs = () =>{
                 <PageTitle parentPage="Home" childPage="Contact" />    
                 <div className="content-inner-2 pt-0">
                     <div className="map-iframe">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d227748.3825624477!2d75.65046970649679!3d26.88544791796718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396c4adf4c57e281%3A0xce1c63a0cf22e09!2sJaipur%2C+Rajasthan!5e0!3m2!1sen!2sin!4v1500819483219" style={{border:'0', width:'100%', minHeight:'100%', marginBottom: '-8px'}} allowFullScreen></iframe>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0981131981475!2d105.78165179999999!3d21.028759900000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313454b32940de77%3A0x3a64fc9d543bf0a5!2zOCBUw7RuIFRo4bqldCBUaHV54bq_dCwgTeG7uSDEkMOsbmgsIFThu6sgTGnDqm0sIEjDoCBO4buZaQ!5e0!3m2!1svi!2s!4v1698675529009!5m2!1svi!2s" style={{border:'0', width:'100%', minHeight:'100%', marginBottom: '-8px'}} allowFullScreen></iframe>
                     </div>
                 </div>
                 <section className="contact-wraper1" style={{backgroundImage: 'url('+ bg2 +')'}}>	
@@ -49,7 +49,7 @@ const ContactUs = () =>{
                                             </div>
                                             <div className="icon-content">
                                                 <h5 className=" dz-tilte text-white">Our Address</h5>
-                                                <p>1247/Plot No. 39, 15th Phase, Huab Colony, Kukatpally, Hyderabad</p>
+                                                <p>Number 8 Ton That Thuyet, My Dinh, Tu Liem District, Hanoi, Vietnam</p>
                                             </div>
                                         </li>
                                         <li className="icon-bx-wraper text-white left m-b30">
@@ -60,7 +60,7 @@ const ContactUs = () =>{
                                             </div>
                                             <div className="icon-content">
                                                 <h5 className="dz-tilte text-white">Our Email</h5>
-                                                <p>info@gmail<br />services@gmail.com</p>
+                                                <p>info@shradha.com<br />services@shradha.com</p>
                                             </div>
                                         </li>
                                     </ul>

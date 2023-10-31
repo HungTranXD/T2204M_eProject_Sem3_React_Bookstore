@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import {Dropdown} from 'react-bootstrap';
 //images
 
@@ -17,17 +17,33 @@ import {useAuth} from "../contexts/AuthContext";
 import {useCategories} from "../contexts/CategoryContext";
 import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
+import {toast} from "react-toastify";
 
 function Header(){
+	const history = useHistory();
+
 	// ----------------------------- SEARCH INPUT -------------------------------
 	const [selectedCategory, setSelectedCategory] = useState({
-		id: null,
+		id: 0,
 		name: 'All Categories'
 	});
 	const [searchString, setSearchString] = useState('');
 
 	const categories = useCategories();
 
+	const handleSearch = () => {
+		if (searchString.trim() !== "") {
+			const categoryParam = selectedCategory.id === null ? 'all' : selectedCategory.id;
+			const searchStringParam = encodeURIComponent(searchString); // Encode the search string
+			if (searchStringParam)
+				history.push(`/books-list/${selectedCategory.id}/${searchStringParam}`);
+		} else {
+			toast.error("Empty search input");
+		}
+	}
+
+
+	// ----------------------------- OTHER STATES -------------------------------
 
 	/* for sticky header */
 	const [headerFix, setheaderFix] = React.useState(false);
@@ -233,7 +249,7 @@ function Header(){
 									</Dropdown.Toggle>
 									<Dropdown.Menu style={{ maxHeight: "50vh", overflowY: "auto" }}>
 										<Dropdown.Item onClick={() => setSelectedCategory({
-											id: null,
+											id: 0,
 											name: "All Categories"
 										})}>
 											All categories
@@ -259,13 +275,11 @@ function Header(){
 									placeholder="Search Products Here"
 									value={searchString}
 									onChange={(e) => setSearchString(e.target.value)}
+									required
 								/>
-								<Link
-									className="btn"
-									to={`/books-list/${selectedCategory.id}/${searchString}`}
-								>
+								<button className="btn" type="button" onClick={handleSearch}>
 									<i className="flaticon-loupe"></i>
-								</Link>
+								</button>
 							</div>
 						</form>
 					</div>
@@ -289,7 +303,7 @@ function Header(){
 						{/* <!-- EXTRA NAV --> */}
 						<div className="extra-nav">
 							<div className="extra-cell">
-								<Link to={"/order-tracking"} className="btn btn-primary btnhover">Order Tracking</Link>
+								<Link to={"contact-us"} className="btn btn-primary btnhover">Get In Touch</Link>
 							</div>
 						</div>
 						

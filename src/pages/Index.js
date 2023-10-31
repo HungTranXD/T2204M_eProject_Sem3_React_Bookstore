@@ -46,6 +46,7 @@ import OrderHistoryDetail from "./OrderHistoryDetail";
 import ReturnRequestHistory from "./ReturnRequestHistory";
 import ReturnRequestDetail from "./ReturnRequestDetail";
 import MyAddress from "./MyAddress";
+import OrderTracking from "./OrderTracking";
 
 function Index(props){
 	var baseName = '';
@@ -57,21 +58,22 @@ function Index(props){
 					<Route path='/under-construction' component={UnderConstruction} />
 					<Route path='/coming-soon' component={ComingSoon} />
 
-					<Route path="/index-2" exact>
-						<Header />
-							<Main>
-								<Switch>
-									<Route path='/index-2' exact component={Home2} />
-								</Switch>
-							</Main>
-						<Footer  footerChange="footer-dark" logoImage={logoWhite} />		
-					</Route>
+					{/*<Route path="/index-2" exact>*/}
+					{/*	<Header />*/}
+					{/*		<Main>*/}
+					{/*			<Switch>*/}
+					{/*				<Route path='/index-2' exact component={Home2} />*/}
+					{/*			</Switch>*/}
+					{/*		</Main>*/}
+					{/*	<Footer  footerChange="footer-dark" logoImage={logoWhite} />		*/}
+					{/*</Route>*/}
 
 					<Route>
 						<Header />
 						<Main>
 							<Switch>
 								<Route path='/' exact component={Home} />
+								<Route path='/order-tracking' exact component={OrderTracking} />
 								<Route path='/about-us' exact component={AboutUs} />
 								<Route path='/my-profile' exact component={MyProfile} />
 								<Route path='/order-history' exact component={OrderHistory} />

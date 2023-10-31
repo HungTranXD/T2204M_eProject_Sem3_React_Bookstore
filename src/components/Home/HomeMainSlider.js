@@ -234,7 +234,7 @@ export default function HomeMainSlider() {
 						<SwiperSlide key={product.id}>
 							<div className="books-card">
 								<div className="dz-media">
-									<img src={addAutoWidthTransformation(product.thumbnail)} alt="book" />
+									<img src={addAutoWidthTransformation(product.thumbnail)} alt="book" style={{width: "398px"}} />
 								</div>
 								<div className="dz-content">
 									<h5 className="title mb-0">{product.name}</h5>
@@ -262,6 +262,53 @@ export default function HomeMainSlider() {
 
 				</Swiper>
 			}
+
+			{/*<Swiper className="swiper-container main-swiper-thumb"*/}
+			{/*		onSwiper={setThumbsSwiper}*/}
+			{/*		spaceBetween= {10}*/}
+			{/*		slidesPerView= {"auto"}*/}
+			{/*	//slidesPerView= {"auto"}*/}
+			{/*	//slidesPerView= {1}*/}
+			{/*		loop={true}*/}
+			{/*		speed={1500}*/}
+			{/*	//freeMode={true}*/}
+			{/*	//effect={"fade"}*/}
+			{/*		watchSlidesProgress= {true}*/}
+			{/*		autoplay={{*/}
+			{/*			delay: 2800,*/}
+			{/*		}}*/}
+			{/*		modules={[ EffectFade, Autoplay,Pagination]}*/}
+			{/*>*/}
+			{/*	{homeData2.map((data, index)=>(*/}
+			{/*		<SwiperSlide key={index}>*/}
+			{/*			<div className="books-card">*/}
+			{/*				<div className="dz-media">*/}
+			{/*					<img src={data.image} alt="book" />*/}
+			{/*				</div>*/}
+			{/*				<div className="dz-content">*/}
+			{/*					<h5 className="title mb-0">{data.title}</h5>*/}
+			{/*					<div className="dz-meta">*/}
+			{/*						<ul>*/}
+			{/*							<li>by Napoleon Hill</li>*/}
+			{/*						</ul>*/}
+			{/*					</div>*/}
+			{/*					<div className="book-footer">*/}
+			{/*						<div className="price">*/}
+			{/*							<span className="price-num">${data.price}</span>*/}
+			{/*						</div>*/}
+			{/*						<div className="rate">*/}
+			{/*							<i className="flaticon-star text-yellow"></i>*/}
+			{/*							<i className="flaticon-star text-yellow"></i>*/}
+			{/*							<i className="flaticon-star text-yellow"></i>*/}
+			{/*							<i className="flaticon-star text-yellow"></i>*/}
+			{/*							<i className="flaticon-star text-yellow"></i>*/}
+			{/*						</div>*/}
+			{/*					</div>*/}
+			{/*				</div>*/}
+			{/*			</div>*/}
+			{/*		</SwiperSlide>*/}
+			{/*	))}*/}
+			{/*</Swiper>*/}
 
 		</>
 	)
