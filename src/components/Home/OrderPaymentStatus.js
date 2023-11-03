@@ -55,11 +55,11 @@ const OrderPaymentStatus = ({paymentSuccess, setPaymentStatus, createdOrder}) =>
                                 <td>Total Payment</td>
                                 <td>
                                     {formatCurrency(createdOrder.grandTotal)} ({createdOrder.paymentMethod})
-                                    <span className="mx-1">|</span>
-                                    {createdOrder.status === 0
-                                        ? <span className="fw-bold text-danger">Unpaid</span>
-                                        : <span className="fw-bold text-success">Paid</span>
-                                    }
+                                    {/*<span className="mx-1">|</span>*/}
+                                    {/*{createdOrder.status === 0*/}
+                                    {/*    ? <span className="fw-bold text-danger">Unpaid</span>*/}
+                                    {/*    : <span className="fw-bold text-success">Paid</span>*/}
+                                    {/*}*/}
                                 </td>
                             </tr>
                             <tr>

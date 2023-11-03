@@ -22,6 +22,7 @@ function OrderHistoryDetail(){
     const [ order, setOrder ] = useState([]);
     const [modalShow, setModalShow] = useState(false);
 
+
     useEffect(() => {
         fetchOrderDetail();
     }, [code])
@@ -75,7 +76,7 @@ function OrderHistoryDetail(){
                                             <h5 className="text-uppercase">Order History · Order Detail</h5>
                                         </div>
                                         {<>
-                                            <OrderDetail order={order}/>
+                                            <OrderDetail order={order} fetchOrderDetail={fetchOrderDetail}/>
 
                                             <div className="row mb-3">
 

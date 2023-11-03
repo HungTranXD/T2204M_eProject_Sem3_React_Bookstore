@@ -32,14 +32,7 @@ function Header(){
 	const categories = useCategories();
 
 	const handleSearch = () => {
-		if (searchString.trim() !== "") {
-			const categoryParam = selectedCategory.id === null ? 'all' : selectedCategory.id;
-			const searchStringParam = encodeURIComponent(searchString); // Encode the search string
-			if (searchStringParam)
-				history.push(`/books-list/${selectedCategory.id}/${searchStringParam}`);
-		} else {
-			toast.error("Empty search input");
-		}
+		history.push(`/books-list/${selectedCategory.id}/${searchString}`);
 	}
 
 
@@ -275,7 +268,6 @@ function Header(){
 									placeholder="Search Products Here"
 									value={searchString}
 									onChange={(e) => setSearchString(e.target.value)}
-									required
 								/>
 								<button className="btn" type="button" onClick={handleSearch}>
 									<i className="flaticon-loupe"></i>

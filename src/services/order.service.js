@@ -55,3 +55,14 @@ export const confirmReceivedOrder = async (confirmData) => {
     }
 }
 
+export const postReview = async (reviewData) => {
+    const endpoint = 'review';
+    try {
+        const response = await api.post(endpoint, reviewData);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+

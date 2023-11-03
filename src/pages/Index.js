@@ -87,7 +87,7 @@ function Index(props){
 								<Route path='/pricing' exact component={Pricing} />
 								<Route path='/privacy-policy' exact component={PrivacyPolicy} />
 								<Route path='/books-grid-view' exact component={BooksGridView} />
-								<Route path='/books-list/:categoryId/:searchString' exact component={ShopList} />
+								<Route path='/books-list/:categoryId/:searchString?' exact component={ShopList} />
 								<Route path='/books-grid-view-sidebar' exact component={BooksGridViewSidebar} />
 								<Route path='/books-list-view-sidebar' exact component={BooksListViewSidebar} />
 								<Route path='/shop-cart' exact component={ShopCart} />

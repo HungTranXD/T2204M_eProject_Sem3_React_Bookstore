@@ -25030,3 +25030,41 @@ input[type=radio] + label, input[type=checkbox] + label {
   line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.product-variant-label {
+  color: #636363;
+  border: 1px dashed #e4e6ef;
+  font-size: 14px;
+  padding: 12.5px 20px;
+  cursor: pointer;
+  line-height: 1.5;
+  display: inline-flex;
+  border-radius: 6px;
+  font-weight: 500;
+  position: relative;
+  text-transform: capitalize;
+  font-family: "Poppins", sans-serif;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1;
+  text-align: center;
+  transition: all 0.2s;
+  justify-content: center;
+  text-decoration: none;
+  vertical-align: middle;
+  user-select: none;
+  background-color: transparent;
+}
+
+/*.product-variant-radio {*/
+/*  display: none;*/
+/*}*/
+
+.product-variant-label:has(>.product-variant-radio:checked){
+  /*background-color: #e58c23;*/
+  /*border-color: #e58c23;*/
+  /*color: white;*/
+
+  border: 1px dashed #e58c23;
+  background-color: #faebde;
+}

@@ -34,7 +34,9 @@ function Footer({footerChange, logoImage}){
 			<>
 				{categories.map((category) => (
 					<React.Fragment key={category.id}>
-						<li><Link>{category.name}</Link></li>
+						<li>
+							<Link to={`/books-list/${category.id}`}>{category.name}</Link>
+						</li>
 						{category.subCategories.length > 0 &&
 							renderCategoriesList(category.subCategories)}
 					</React.Fragment>
@@ -57,7 +59,9 @@ function Footer({footerChange, logoImage}){
 									<ul>
 										{categories.map((category, id)=>(
 											<React.Fragment key={id}>
-												<li className="w-100 fw-bold border-bottom"><Link>{category.name}</Link></li>
+												<li className="w-100 fw-bold border-bottom">
+													<Link to={`/books-list/${category.id}`}>{category.name}</Link>
+												</li>
 												{category.subCategories.length > 0 &&
 													renderCategoriesList(category.subCategories)}
 											</React.Fragment>

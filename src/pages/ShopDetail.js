@@ -168,114 +168,213 @@ function ShopDetail(){
 
     // -------- THIS IS THE TEST (DELETE AFTER TEST) ---------
     const productDetail = {
-        id: 1,
-        name: "Chanel Bag",
-        description: "A stylish Chanel bag",
-        price: null,
-        quantity: null,
-        hasVariants: true,
-        thumbnail: "chanel_bag.jpg",
-        productAttributes: [
+        "id": 1,
+        "status": 1,
+        "name": "Thunder Stunt",
+        "slug": "thunder-stunt",
+        "price": null,
+        "vatRate": null,
+        "discountAmount": null,
+        "quantity": null,
+        "createdAt": "2023-11-02T15:18:46.86",
+        "updatedAt": null,
+        "productImages": [],
+        "rating": 4.5,
+        "soldQuantity": 14,
+        "hasVariants": true,
+        "productVariants": [
             {
-                name: "Color",
-                values: ["Red", "Blue"],
+                "id": 1,
+                "productId": 1,
+                "price": 70,
+                "vatRate": 10,
+                "discountAmount": 15.22,
+                "quantity": 123,
+                "createdAt": "2023-11-02T15:18:46.867",
+                "updatedAt": null,
+                "productVariantAttributeValues": [
+                    {
+                        "id": 1,
+                        "productVariantId": 1,
+                        "attributeId": 1,
+                        "attributeName": "Format",
+                        "attributeValueId": 1,
+                        "attributeValue": "Hardcover"
+                    },
+                    {
+                        "id": 2,
+                        "productVariantId": 1,
+                        "attributeId": 2,
+                        "attributeName": "Condition",
+                        "attributeValueId": 4,
+                        "attributeValue": "New"
+                    }
+                ]
             },
             {
-                name: "Size",
-                values: ["Small", "Large"],
+                "id": 2,
+                "productId": 1,
+                "price": 60,
+                "vatRate": 8,
+                "discountAmount": 5.74,
+                "quantity": 56,
+                "createdAt": "2023-11-02T15:18:46.867",
+                "updatedAt": null,
+                "productVariantAttributeValues": [
+                    {
+                        "id": 3,
+                        "productVariantId": 2,
+                        "attributeId": 1,
+                        "attributeName": "Format",
+                        "attributeValueId": 1,
+                        "attributeValue": "Hardcover"
+                    },
+                    {
+                        "id": 4,
+                        "productVariantId": 2,
+                        "attributeId": 2,
+                        "attributeName": "Condition",
+                        "attributeValueId": 5,
+                        "attributeValue": "Like New"
+                    }
+                ]
             },
+            {
+                "id": 3,
+                "productId": 1,
+                "price": 45,
+                "vatRate": 10,
+                "discountAmount": 9.31,
+                "quantity": 83,
+                "createdAt": "2023-11-02T15:18:46.867",
+                "updatedAt": null,
+                "productVariantAttributeValues": [
+                    {
+                        "id": 5,
+                        "productVariantId": 3,
+                        "attributeId": 1,
+                        "attributeName": "Format",
+                        "attributeValueId": 2,
+                        "attributeValue": "Paperback"
+                    },
+                    {
+                        "id": 6,
+                        "productVariantId": 3,
+                        "attributeId": 2,
+                        "attributeName": "Condition",
+                        "attributeValueId": 4,
+                        "attributeValue": "New"
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "productId": 1,
+                "price": 35,
+                "vatRate": 8,
+                "discountAmount": 2.56,
+                "quantity": 12,
+                "createdAt": "2023-11-02T15:18:46.867",
+                "updatedAt": null,
+                "productVariantAttributeValues": [
+                    {
+                        "id": 7,
+                        "productVariantId": 4,
+                        "attributeId": 1,
+                        "attributeName": "Format",
+                        "attributeValueId": 2,
+                        "attributeValue": "Paperback"
+                    },
+                    {
+                        "id": 8,
+                        "productVariantId": 4,
+                        "attributeId": 2,
+                        "attributeName": "Condition",
+                        "attributeValueId": 5,
+                        "attributeValue": "Like New"
+                    }
+                ]
+            }
         ],
-        variants: [
+        "productAttributes": [
             {
-                id: 101,
-                attributes: [
+                "id": 1,
+                "name": "Format",
+                "attributeValues": [
                     {
-                        name: "Color",
-                        value: "Red"
+                        "id": 1,
+                        "value": "Hardcover",
+                        "attributeId": 1
                     },
                     {
-                        name: "Size",
-                        value: "Small"
+                        "id": 2,
+                        "value": "Paperback",
+                        "attributeId": 1
                     }
-                ],
-                quantity: 10,
-                price: 200
+                ]
             },
             {
-                id: 102,
-                attributes: [
+                "id": 2,
+                "name": "Condition",
+                "attributeValues": [
                     {
-                        name: "Color",
-                        value: "Blue"
+                        "id": 4,
+                        "value": "New",
+                        "attributeId": 2
                     },
                     {
-                        name: "Size",
-                        value: "Small"
+                        "id": 5,
+                        "value": "Like New",
+                        "attributeId": 2
                     }
-                ],
-                quantity: 5,
-                price: 200
-            },
-            {
-                id: 103,
-                attributes: [
-                    {
-                        name: "Color",
-                        value: "Red"
-                    },
-                    {
-                        name: "Size",
-                        value: "Large"
-                    }
-                ],
-                quantity: 8,
-                price: 250
-            },
-            {
-                id: 104,
-                attributes: [
-                    {
-                        name: "Color",
-                        value: "Blue"
-                    },
-                    {
-                        name: "Size",
-                        value: "Large"
-                    }
-                ],
-                quantity: 3,
-                price: 250
+                ]
             }
         ]
     }
 
-    const [selectedAttributes, setSelectedAttributes] = useState({ Color: "", Size: "" });
-
+    const [selectedAttributes, setSelectedAttributes] = useState({});
     const [selectedVariant, setSelectedVariant] = useState(null);
 
-    useEffect(() => {
-        findVariant();
-    }, [selectedAttributes])
-
-    const findVariant = () => {
-        const result = productDetail.variants.find((variant) =>
-            variant.attributes.every((attribute) => selectedAttributes[attribute.name] === attribute.value)
-        );
-        if (result) {
-            setSelectedVariant(result);
-        } else {
-            setSelectedVariant(null)
-        }
-    }
-
-
-    const handleAttributeChange = (attributeName, attributeValue) => {
+    const handleAttributeChange = (attributeId, attributeValueId) => {
         setSelectedAttributes({
             ...selectedAttributes,
-            [attributeName]: attributeValue,
+            [attributeId]: attributeValueId,
         });
-        console.log(selectedAttributes);
     };
+
+    const findVariant = () => {
+        const result = productDetail.productVariants.find((variant) =>
+            variant.productVariantAttributeValues.every((attrValue) =>
+                selectedAttributes[attrValue.attributeId] === attrValue.attributeValueId
+            )
+        );
+        setSelectedVariant(result);
+    };
+
+    // A method to set the default selected attributes (if needed)
+    const setDefaultSelectedAttributes = () => {
+        if (productDetail.productVariants.length > 0) {
+            const initialAttributes = {};
+
+            // Use the attributes of the first variant
+            const firstVariant = productDetail.productVariants[0];
+            firstVariant.productVariantAttributeValues.forEach((attrValue) => {
+                initialAttributes[attrValue.attributeId] = attrValue.attributeValueId;
+            });
+
+            setSelectedAttributes(initialAttributes);
+        }
+    };
+
+    // Call setDefaultSelectedAttributes when the component is mounted
+    useEffect(() => {
+        setDefaultSelectedAttributes();
+    }, []);
+
+    // Call findVariant whenever selectedAttributes change
+    useEffect(() => {
+        findVariant();
+    }, [selectedAttributes]);
 
 
     return(
@@ -286,24 +385,7 @@ function ShopDetail(){
                 <p>Price: {selectedVariant ? selectedVariant.price : "Select a variant"}</p>
                 <p>Quantity: {selectedVariant ? selectedVariant.quantity : "Select a variant"}</p>
 
-                {productDetail.productAttributes.map((attribute) => (
-                    <div key={attribute.name}>
-                        <h4>{attribute.name}:</h4>
-                        {attribute.values.map((value) => (
-                            <label key={value} htmlFor={value}>
-                                <input
-                                    type="radio"
-                                    id={value}
-                                    name={attribute.name}
-                                    value={value}
-                                    checked={selectedAttributes[attribute.name] === value}
-                                    onChange={() => handleAttributeChange(attribute.name, value)}
-                                />
-                                {value}
-                            </label>
-                        ))}
-                    </div>
-                ))}
+
             </div>
             {/*END TEST SECTION*/}
 
@@ -367,6 +449,26 @@ function ShopDetail(){
                                             </div>
                                             <p className="text-1">{product.description}</p>
                                             {/*<p className="text-2"></p>*/}
+
+                                            {productDetail.productAttributes.map((attribute) => (
+                                                <div key={attribute.id} className="mb-3">
+                                                    <p className="mb-1 fw-bold">{attribute.name}</p>
+                                                    {attribute.attributeValues.map((value) => (
+                                                        <label key={value.id} htmlFor={value.value} className="product-variant-label m-r15">
+                                                            <input
+                                                                type="radio"
+                                                                className="product-variant-radio form-check-input mt-0 m-r10"
+                                                                id={value.value}
+                                                                name={attribute.name}
+                                                                value={value.id}
+                                                                checked={selectedAttributes[attribute.id] === value.id}
+                                                                onChange={() => handleAttributeChange(attribute.id, value.id)}
+                                                            />
+                                                            {value.value}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            ))}
 
                                             <div className="book-footer">
                                                 {product.discountAmount ?

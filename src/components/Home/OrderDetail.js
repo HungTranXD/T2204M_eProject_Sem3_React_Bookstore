@@ -1,9 +1,18 @@
 import formatDate from "../../utils/datetimeFormatter";
 import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
 import {formatCurrency} from "../../utils/currencyFormatter";
-import React from "react";
+import React, {useState} from "react";
+import ReviewProductModal from "./ReviewProductModal";
+import {Link} from "react-router-dom";
 
-function OrderDetail({order}) {
+function OrderDetail({order, fetchOrderDetail}) {
+    const [reviewModalShow, setReviewModalShow] = useState(false);
+    const [selectedProductToReview, setSelectedProductToReview] = useState(null);
+
+    const handleClickReviewButton = async (product) => {
+        await setSelectedProductToReview(product);
+        setReviewModalShow(true);
+    }
 
     return (
         <>
@@ -276,11 +285,14 @@ function OrderDetail({order}) {
                     <thead>
                     <tr>
                         <th>Image</th>
-                        <th style={{width: "40%"}}>Product name</th>
+                        <th style={{width: "35%"}}>Product name</th>
                         <th>Unit Price</th>
                         <th className="text-center">Quantity</th>
                         <th className="text-center">Total</th>
                         <th className="text-end">VAT</th>
+                        {order.userId && order.status === 5 && !order.returnRequestId &&
+                            <th className="text-end">Rating</th>
+                        }
                     </tr>
                     </thead>
                     <tbody>
@@ -310,8 +322,23 @@ function OrderDetail({order}) {
                                     <td className="text-end">
                                         {product.vatRate}%
                                     </td>
+                                    {order.userId && order.status === 5 && !order.returnRequestId &&
+                                        <th className="text-center">
+                                            <Link onClick={() => handleClickReviewButton(product)}>
+                                            {product.review ? (
+                                                <i className="fas fa-star text-yellow"></i>
+                                            ) : (
+                                                <i className="far fa-star text-muted" ></i>
+                                            )}
+                                            </Link>
+                                        </th>
+                                    }
+
                                 </tr>
                             ))}
+                            {selectedProductToReview &&
+                                <ReviewProductModal show={reviewModalShow} onHide={() => setReviewModalShow(false)} product={selectedProductToReview} fetchOrderDetail={fetchOrderDetail} />
+                            }
                         </>
                     }
                     </tbody>

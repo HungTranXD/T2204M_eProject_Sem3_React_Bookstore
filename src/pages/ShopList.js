@@ -23,6 +23,7 @@ import {useUser} from "../contexts/UserContext";
 import {likeOrUnlikeProduct} from "../services/user.service";
 import {toast} from "react-toastify";
 import Pagination from "../components/Home/Pagination";
+import {useCategories} from "../contexts/CategoryContext";
 
 const lableBlogData = [
     {name:'Architecture'},
@@ -64,6 +65,8 @@ const cardDetials = [
 function ShopList(){
     const { categoryId, searchString } = useParams();
 
+    const categories = useCategories();
+
     const {loadingDispatch} = useLoading();
     const { cartDispatch } = useCart();
     const [products, setProducts] = useState([]);
@@ -78,6 +81,7 @@ function ShopList(){
     }, [categoryId, searchString, currentPage]);
 
     useEffect(() => {
+        console.log("search string", searchString);
         fetchLikedProducts();
     }, [])
 
@@ -103,6 +107,30 @@ function ShopList(){
             loadingDispatch({type: 'STOP_LOADING'});
         }
     }
+
+    const getCategoryName = (categoryId, categories) => {
+        if (categoryId === '0') {
+            return 'All Categories';
+        }
+
+        const findCategoryName = (categoryId, categories) => {
+            for (const category of categories) {
+                if (category.id === parseInt(categoryId)) {
+                    return category.name;
+                }
+                if (category.subCategories.length > 0) {
+                    const subCategoryName = findCategoryName(categoryId, category.subCategories);
+                    if (subCategoryName) {
+                        return subCategoryName;
+                    }
+                }
+            }
+            return null;
+        };
+
+        const categoryName = findCategoryName(categoryId, categories);
+        return categoryName || 'Category Not Found';
+    };
 
     const handleLikeButton = async (id) => {
         try {
@@ -134,6 +162,25 @@ function ShopList(){
         return starRating;
     }
 
+    function highlightSearchString(text, searchString) {
+        if (!searchString) {
+            return text; // Return the original text if searchString is empty.
+        }
+
+        // Split the text by the search string.
+        const parts = text.split(new RegExp(`(${searchString})`, 'gi'));
+
+        return parts.map((part, index) =>
+            part.toLowerCase() === searchString.toLowerCase() ? (
+                <span key={index} className="bg-info text-white">
+                {part}
+            </span>
+            ) : (
+                part
+            )
+        );
+    }
+
     const [accordBtn, setAccordBtn] = useState();
     const [selectBtn, setSelectBtn] = useState('Newest');
     return(
@@ -143,10 +190,10 @@ function ShopList(){
                     <div className="container">
                         <div className="filter-area m-b30">
                             <div className="grid-area">
-                                <h6 className="mb-0 m-l20">Search result for "{searchString}"</h6>
+                                <h6 className="mb-0 m-l20">{searchString && `Search result for "${searchString}" from`} {getCategoryName(categoryId, categories)}</h6>
                             </div>
                             <div className="category align-items-center">
-                                <p className="page-text my-3 m-r20">Showing 12 from 50 data</p>
+                                <p className="page-text my-3 m-r20">Showing {products.length} from {totalItems} products</p>
                             </div>
                         </div>	
 
@@ -167,7 +214,7 @@ function ShopList(){
                                                             </li>
                                                         )}
                                                     </ul>
-                                                    <h4 className="title mb-0"><Link to={"books-list-view-sidebar"}>{product.name}</Link></h4>
+                                                    <h4 className="title mb-0"><Link to={"books-list-view-sidebar"}>{highlightSearchString(product.name, searchString)}</Link></h4>
                                                 </div>
                                                 {product.discountAmount ?
                                                     <div className="price">
@@ -184,7 +231,7 @@ function ShopList(){
                                             <div className="dz-body">
                                                 <div className="dz-rating-box">
                                                     <div>
-                                                        <p className="dz-para">{product.description}</p>
+                                                        <p className="dz-para">{highlightSearchString(product.description, searchString)}</p>
                                                         <div>
                                                             {product.tags.map(tag =>
                                                                 <Link className="badge me-1" key={tag.id}>
