@@ -19,6 +19,7 @@ import {useLoading} from "../../contexts/LoadingContext";
 import {getProducts} from "../../services/product.service";
 import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
 import {formatCurrency} from "../../utils/currencyFormatter";
+import {calculateMinAndMaxPrice} from "../../utils/productVariantUtils";
 
 
 
