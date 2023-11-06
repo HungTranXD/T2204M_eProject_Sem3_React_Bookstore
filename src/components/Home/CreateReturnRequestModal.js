@@ -247,7 +247,7 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
                 await postReturnRequest(requestData);
                 //onHide();
                 fetchOrderDetail();
-                toast.success("Cancel return request successful");
+                toast.success("Return request created");
                 //await new Promise((resolve) => setTimeout(resolve, 3000));
             } catch (error) {
                 console.log(error);
@@ -271,7 +271,7 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    Are you sure to cancel this order?
+                    Create return request for this order?
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -324,7 +324,10 @@ function CreateReturnRequestModal({ show, onHide, order, fetchOrderDetail }) {
                                         <td
                                             className={`product-item-name ${!returnProduct.checked && 'text-muted'}`}
                                         >
-                                            {returnProduct.productName}
+                                            {returnProduct.productName}<br/>
+                                            {returnProduct.productVariantAttributeValues.length > 0 &&
+                                                <p className="font-13 fw-normal text-primary my-0">{returnProduct.productVariantAttributeValues.map(attr => attr.attributeName + ": " + attr.attributeValue).join(' | ')}</p>
+                                            }
                                         </td>
                                         <td
                                             className={`product-item-price text-center ${!returnProduct.checked && 'text-muted'}`}

@@ -26,6 +26,8 @@ import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
 import {formatCurrency} from "../../utils/currencyFormatter";
 import {toast} from "react-toastify";
 import {useCart} from "../../contexts/CartContext";
+import useAddToCart from "../../custome-hooks/useAddToCart";
+import {calculateMinAndMaxPrice} from "../../utils/productVariantUtils";
 
 //SwiperCore.use([EffectCoverflow,Pagination]);
 
@@ -39,9 +41,9 @@ const dataBlog = [
 	{image: book15 , title:'Terrible', price:'$24.89'},
 ];
 
-export default function RecomendedSlider() {
+export default function RecomendedSlider({ setSelectedProduct, setSelectVariantModalShow }) {
 	const {loadingDispatch} = useLoading();
-	const { cartDispatch } = useCart();
+	const { handleAddToCart } = useAddToCart();
 	const [products, setProducts] = useState([]);
 
 	useEffect(() => {
@@ -70,25 +72,6 @@ export default function RecomendedSlider() {
 		}
 	}
 
-	const handleAddToCart = (product) => {
-		if (product.quantity === 0) {
-			toast.error('Out of Stock!');
-			return;
-		}
-
-		loadingDispatch({type: 'START_LOADING'});
-		// Create a new product object with the selectedGift and buy_quantity
-		const productToAdd = {
-			...product,
-			buy_quantity: 1,
-		};
-		// Dispatch the ADD_TO_CART action with the product
-		cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-		toast.success('Add to Cart!');
-		loadingDispatch({type: 'STOP_LOADING'});
-	};
-
-	
 	return (
 		<>
 			<Swiper className="swiper-container  swiper-two"						
@@ -134,16 +117,35 @@ export default function RecomendedSlider() {
 										{product.name}
 									</Link>
 								</h4>
-                                <span className="price">{formatCurrency(
-									product.price -
-									(product.discountAmount ? product.discountAmount : 0)
-								)}</span>
-                                <Link
-									className="btn btn-secondary btnhover btnhover2"
-									onClick={() => handleAddToCart(product)}
-								>
-									<i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
-								</Link>
+								{product.hasVariants ? (
+									<span className="price">
+									{formatCurrency(calculateMinAndMaxPrice(product).minPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
+								</span>
+								) : (
+									<span className="price">
+									{formatCurrency(product.price - (product.discountAmount ? product.discountAmount : 0))}
+								</span>
+								)}
+
+								{product.hasVariants ? (
+									<Link
+										className="btn btn-secondary btnhover btnhover2"
+										onClick={async () => {
+											await setSelectedProduct(product);
+											setSelectVariantModalShow(true);
+										}}
+									>
+										<i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+									</Link>
+								) : (
+									<Link
+										className="btn btn-secondary btnhover btnhover2"
+										onClick={() => handleAddToCart(product, 1)}
+									>
+										<i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+									</Link>
+								)}
+
                             </div>
                         </div>						
 					</SwiperSlide>

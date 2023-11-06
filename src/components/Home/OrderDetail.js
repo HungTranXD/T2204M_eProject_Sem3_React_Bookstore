@@ -305,11 +305,16 @@ function OrderDetail({order, fetchOrderDetail}) {
                         :
                         <>
                             {order.orderProducts.map((product, index) => (
-                                <tr key={product.productId}>
+                                <tr key={product.id}>
                                     <td className="product-item-img"><img
                                         src={addAutoWidthTransformation(product.productThumbnail)}
                                         alt=""/></td>
-                                    <td className="product-item-name">{product.productName}</td>
+                                    <td className="product-item-name">
+                                        <h6 className="mb-0">{product.productName}</h6>
+                                        {product.productVariantAttributeValues.length > 0 &&
+                                            <p className="font-14 fw-normal text-primary my-0">{product.productVariantAttributeValues.map(attr => attr.attributeName + ": " + attr.attributeValue).join(' | ')}</p>
+                                        }
+                                    </td>
                                     <td className="product-item-price">
                                         {formatCurrency(product.price)}
                                     </td>

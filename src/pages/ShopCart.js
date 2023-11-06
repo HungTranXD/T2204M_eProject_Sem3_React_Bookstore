@@ -186,7 +186,7 @@ function ShopCart(){
                                                 <th>Quantity</th>
                                                 <th>Total</th>
                                                 <th>VAT</th>
-                                                <th className="text-end">Close</th>
+                                                <th className="text-end">Remove</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -199,7 +199,15 @@ function ShopCart(){
                                             {cartState.cartItems.map((item, index)=>(
                                                 <tr key={item.id}>
                                                     <td className="product-item-img"><img src={addAutoWidthTransformation(item.thumbnail)} alt="" /></td>
-                                                    <td className="product-item-name">{item.name}</td>
+                                                    <td className="product-item-name">
+                                                        <h6 className="mb-0">{item.name}</h6>
+                                                        {item.productVariantAttributeValues &&
+                                                            <span className="text-primary">
+                                                                {item.productVariantAttributeValues.map(attr => attr.attributeName + ": " + attr.attributeValue).join(" | ")}
+                                                            </span>
+                                                        }
+
+                                                    </td>
                                                     {item.discountAmount ?
                                                         <td className="product-item-price">
                                                             {formatCurrency(item.price - item.discountAmount)}

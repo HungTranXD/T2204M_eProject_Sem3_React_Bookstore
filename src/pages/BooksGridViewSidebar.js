@@ -31,15 +31,22 @@ import {toast} from "react-toastify";
 import {useCart} from "../contexts/CartContext";
 import {useUser} from "../contexts/UserContext";
 import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
+import SelectVariantModal from "../components/Home/SelectVariantModal";
+import useAddToCart from "../custome-hooks/useAddToCart";
+import {calculateMinAndMaxPrice} from "../utils/productVariantUtils";
+import {calculateStarRating} from "../utils/renderStarRatingUtils";
+
 
 function BooksGridViewSidebar(){
-    const [accordBtn, setAccordBtn] = useState();
-    const [selectBtn, setSelectBtn] = useState('Newest');
     const [showSidebar, setShowSidebar] = useState(true);
     const [gridLayout, setGridLayout] = useState(true);
 
+    const [selectVariantModalShow, setSelectVariantModalShow] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
     const {loadingDispatch} = useLoading();
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
+
     const [products, setProducts] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -89,24 +96,6 @@ function BooksGridViewSidebar(){
         setFilterCriteria({...filterCriteria, page: pageNumber});
     };
 
-    const handleAddToCart = (product) => {
-        if (product.quantity === 0) {
-            toast.error('Out of Stock!');
-            return;
-        }
-
-        loadingDispatch({type: 'START_LOADING'});
-        // Create a new product object with the selectedGift and buy_quantity
-        const productToAdd = {
-            ...product,
-            buy_quantity: 1,
-        };
-        // Dispatch the ADD_TO_CART action with the product
-        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-        toast.success('Add to Cart!');
-        loadingDispatch({type: 'STOP_LOADING'});
-    };
-
     const handleSortChange = (selectedSortOption) => {
         setFilterCriteria({
             ...filterCriteria,
@@ -127,25 +116,9 @@ function BooksGridViewSidebar(){
         }
     }
 
-    function calculateStarRating(rating) {
-        const roundedRating = Math.round(rating * 2) / 2; // Round to the nearest 0.5
-        const starRating = [];
-
-        for (let i = 1; i <= 5; i++) {
-            if (roundedRating >= i) {
-                starRating.push(<li key={i}><i className="fas fa-star text-yellow"></i></li>);
-            } else if (roundedRating === i - 0.5) {
-                starRating.push(<li key={i}><i className="fas fa-star-half-alt text-yellow"></i></li>);
-            } else {
-                starRating.push(<li key={i}><i className="far fa-star text-yellow"></i></li>);
-            }
-        }
-
-        return starRating;
-    }
-
     return(
         <>
+            <SelectVariantModal product={selectedProduct} show={selectVariantModalShow} onHide={() => setSelectVariantModalShow(false)} />
             <div className="page-content bg-grey">
                 <div className="content-inner-1 border-bottom">
                     <div className="container">
@@ -226,8 +199,6 @@ function BooksGridViewSidebar(){
                                                 <Dropdown.Menu>
                                                     <Dropdown.Item onClick={() => handleSortChange('newest')}>Newest</Dropdown.Item>
                                                     <Dropdown.Item onClick={() => handleSortChange('oldest')}>Oldest</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => handleSortChange('highestprice')}>Highest Price</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => handleSortChange('lowestprice')}>Lowest Price</Dropdown.Item>
                                                     <Dropdown.Item onClick={() => handleSortChange('highestdiscount')}>Highest Discount</Dropdown.Item>
                                                     <Dropdown.Item onClick={() => handleSortChange('highestrating')}>Highest Rating</Dropdown.Item>
                                                     <Dropdown.Item onClick={() => handleSortChange('bestseller')}>Best Seller</Dropdown.Item>
@@ -259,7 +230,7 @@ function BooksGridViewSidebar(){
                                         >
                                             <div className="dz-shop-card style-1">
                                                 <div className="dz-media">
-                                                    <img src={addAutoWidthTransformation(product.thumbnail)} alt="book" />
+                                                    <img src={addAutoWidthTransformation(product.thumbnail)} alt="book" style={{width: "250px", height: "357px", objectFit: "cover"}}/>
                                                 </div>
                                                 <div className="bookmark-btn style-2">
                                                     <input
@@ -289,23 +260,45 @@ function BooksGridViewSidebar(){
                                                         {calculateStarRating(parseFloat(product.rating.toFixed(1)))}
                                                     </ul>
                                                     <div className="book-footer">
-                                                        {product.discountAmount ?
+                                                        {product.hasVariants ? (
                                                             <div className="price">
-                                                                <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
-                                                                <del>{formatCurrency(product.price)}</del>
+                                                                <span className="price-num">
+                                                                    {formatCurrency(calculateMinAndMaxPrice(product).minPrice)}
+                                                                    {` - `}
+                                                                    {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
+                                                                </span>
                                                             </div>
-                                                            :
-                                                            <div className="price">
-                                                                <span className="price-num">{formatCurrency(product.price)}</span>
-                                                            </div>
-                                                        }
+                                                        ) : (
+                                                            product.discountAmount ?
+                                                                <div className="price">
+                                                                    <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                                    <del>{formatCurrency(product.price)}</del>
+                                                                </div>
+                                                                :
+                                                                <div className="price">
+                                                                    <span className="price-num">{formatCurrency(product.price)}</span>
+                                                                </div>
+                                                        )}
 
-                                                        <Link
-                                                            className="btn btn-secondary box-btn btnhover btnhover2"
-                                                            onClick={() => handleAddToCart(product)}
-                                                        >
-                                                            <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
-                                                        </Link>
+                                                        {product.hasVariants ? (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={async () => {
+                                                                    await setSelectedProduct(product);
+                                                                    setSelectVariantModalShow(true);
+                                                                }}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={() => handleAddToCart(product, 1)}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        )}
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -329,18 +322,27 @@ function BooksGridViewSidebar(){
                                                             </li>
                                                         )}
                                                     </ul>
-                                                    <h4 className="title mb-0"><Link to={"books-list-view-sidebar"}>{product.name}</Link></h4>
+                                                    <h4 className="title mb-0"><Link to={`/shop-detail/${product.slug}`}>{product.name}</Link></h4>
                                                 </div>
-                                                {product.discountAmount ?
+                                                {product.hasVariants ? (
                                                     <div className="price">
-                                                        <span className="price-num text-primary">{formatCurrency(product.price - product.discountAmount)}</span>
-                                                        <del>{formatCurrency(product.price)}</del>
+                                                        <span className="price-num text-primary">
+                                                            {formatCurrency(calculateMinAndMaxPrice(product).minPrice)}
+                                                            {` - `}
+                                                            {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
+                                                        </span>
                                                     </div>
-                                                    :
-                                                    <div className="price">
-                                                        <span className="price-num text-primary">{formatCurrency(product.price)}</span>
-                                                    </div>
-                                                }
+                                                ) : (
+                                                    product.discountAmount ?
+                                                        <div className="price">
+                                                            <span className="price-num text-primary">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                            <del>{formatCurrency(product.price)}</del>
+                                                        </div>
+                                                        :
+                                                        <div className="price">
+                                                            <span className="price-num text-primary">{formatCurrency(product.price)}</span>
+                                                        </div>
+                                                )}
                                             </div>
 
                                             <div className="dz-body">
@@ -370,13 +372,24 @@ function BooksGridViewSidebar(){
                                                         <li><span>Year</span>{product.publishYear}</li>
                                                     </ul>
                                                     <div className="d-flex">
-                                                        <Link
-                                                            className="btn btn-secondary btnhover btnhover2"
-                                                            onClick={() => handleAddToCart(product)}
-                                                        >
-                                                            <i className="flaticon-shopping-cart-1 m-r10"></i>
-                                                            Add to cart
-                                                        </Link>
+                                                        {product.hasVariants ? (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={async () => {
+                                                                    await setSelectedProduct(product);
+                                                                    setSelectVariantModalShow(true);
+                                                                }}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={() => handleAddToCart(product, 1)}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        )}
                                                         <div className="bookmark-btn style-1">
                                                             <input
                                                                 className="form-check-input"

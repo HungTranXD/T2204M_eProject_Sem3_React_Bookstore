@@ -32,6 +32,10 @@ import {getProducts} from "../../services/product.service";
 import {toast} from "react-toastify";
 import {formatCurrency} from "../../utils/currencyFormatter";
 import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
+import {calculateMinAndMaxDiscount, calculateMinAndMaxPrice} from "../../utils/productVariantUtils";
+import {calculateStarRating} from "../../utils/renderStarRatingUtils";
+import SelectVariantModal from "./SelectVariantModal";
+import useAddToCart from "../../custome-hooks/useAddToCart";
 SwiperCore.use([Parallax,Thumbs, FreeMode,Autoplay, Pagination, EffectFade ]);
 
 
@@ -48,14 +52,16 @@ const homeData2 = [
 	{image: book9, title: 'Think and Grow Rich', price:'10.4' },
 ];
 
-export default function HomeMainSlider() {
+export default function HomeMainSlider({setSelectedProduct, setSelectVariantModalShow}) {
 	const [thumbsSwiper, setThumbsSwiper] = useState(null);	
 	const paginationRef = React.useRef(null)
 
 	const {loadingDispatch} = useLoading();
-	const { cartDispatch } = useCart();
+	const { handleAddToCart } = useAddToCart();
 	const [products, setProducts] = useState([]);
 	const [fourProducts, setFourProducts] = useState([]);
+
+
 
 
 	useEffect(() => {
@@ -108,26 +114,10 @@ export default function HomeMainSlider() {
 		}
 	}
 
-	const handleAddToCart = (product) => {
-		if (product.quantity === 0) {
-			toast.error('Out of Stock!');
-			return;
-		}
-
-		loadingDispatch({type: 'START_LOADING'});
-		// Create a new product object with the selectedGift and buy_quantity
-		const productToAdd = {
-			...product,
-			buy_quantity: 1,
-		};
-		// Dispatch the ADD_TO_CART action with the product
-		cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-		toast.success('Add to Cart!');
-		loadingDispatch({type: 'STOP_LOADING'});
-	};
 
 	return (
 		<>
+
 			{products &&
 				<Swiper className="swiper-container main-swiper "
 						speed= {1500}
@@ -165,22 +155,32 @@ export default function HomeMainSlider() {
 													</ul>
 													<p className="text mb-0 truncate-3-lines" data-swiper-parallax="-40">{product.description}</p>
 													<div className="price" data-swiper-parallax="-50">
-														{product.discountAmount ?
+														{product.hasVariants ? (
 															<>
-																<span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
-																<del>{formatCurrency(product.price)}</del>
-																<span className="badge badge-danger">{(product.discountAmount * 100 / product.price).toFixed(2)} OFF</span>
+																<span className="price-num">{formatCurrency(calculateMinAndMaxPrice(product).minPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}</span>
+																<del>{formatCurrency(calculateMinAndMaxPrice(product).minOriginalPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxOriginalPrice)}</del>
+																<span className="badge badge-danger">{formatCurrency(calculateMinAndMaxDiscount(product).minDiscountPercentage)} - {formatCurrency(calculateMinAndMaxDiscount(product).maxDiscountPercentage)} OFF</span>
 															</>
-															:
-															<span className="price-num">{formatCurrency(product.price)}</span>
-														}
+														) : (
+															product.discountAmount ?
+																<>
+																	<span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
+																	<del>{formatCurrency(product.price)}</del>
+																	<span className="badge badge-danger">{(product.discountAmount * 100 / product.price).toFixed(2)} OFF</span>
+																</>
+																:
+																<span className="price-num">{formatCurrency(product.price)}</span>
+
+														)}
 													</div>
 													<div className="content-btn" data-swiper-parallax="-60">
-														<Link
-															className="btn btn-primary btnhover"
-															onClick={() => handleAddToCart(product)}
-														>Add to Cart</Link>
-														<Link className="btn border btnhover ms-4 text-white" to={`/shop-detail/${product.slug}`}>See Details</Link>
+														{!product.hasVariants &&
+															<Link
+																className="btn btn-primary btnhover me-4"
+																onClick={() => handleAddToCart(product, 1)}
+															>Add to Cart</Link>
+														}
+														<Link className="btn border btnhover  text-white" to={`/shop-detail/${product.slug}`}>See Details</Link>
 													</div>
 												</div>
 												<div className="partner">
@@ -237,7 +237,7 @@ export default function HomeMainSlider() {
 									<img src={addAutoWidthTransformation(product.thumbnail)} alt="book" style={{width: "398px"}} />
 								</div>
 								<div className="dz-content">
-									<h5 className="title mb-0">{product.name}</h5>
+									<h5 className="title mb-0"><Link to={`/shop-detail/${product.slug}`}>{product.name}</Link></h5>
 									<div className="dz-meta">
 										<ul>
 											<li>by {product.author.name}</li>
@@ -245,14 +245,15 @@ export default function HomeMainSlider() {
 									</div>
 									<div className="book-footer">
 										<div className="price">
-											<span className="price-num">${product.price - (product.discountAmount ? product.discountAmount : 0)}</span>
+											{product.hasVariants ? (
+												<span className="price-num m-r10">{formatCurrency(calculateMinAndMaxPrice(product).minPrice)}-{formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}</span>
+											) : (
+												<span className="price-num m-r10">{formatCurrency(product.price - (product.discountAmount ? product.discountAmount : 0))}</span>
+											)}
+
 										</div>
-										<div className="rate">
-											<i className="flaticon-star text-yellow"></i>
-											<i className="flaticon-star text-yellow"></i>
-											<i className="flaticon-star text-yellow"></i>
-											<i className="flaticon-star text-yellow"></i>
-											<i className="flaticon-star text-yellow"></i>
+										<div className="rate d-flex">
+											{calculateStarRating(parseFloat(product.rating.toFixed(1)))}
 										</div>
 									</div>
 								</div>
@@ -262,54 +263,6 @@ export default function HomeMainSlider() {
 
 				</Swiper>
 			}
-
-			{/*<Swiper className="swiper-container main-swiper-thumb"*/}
-			{/*		onSwiper={setThumbsSwiper}*/}
-			{/*		spaceBetween= {10}*/}
-			{/*		slidesPerView= {"auto"}*/}
-			{/*	//slidesPerView= {"auto"}*/}
-			{/*	//slidesPerView= {1}*/}
-			{/*		loop={true}*/}
-			{/*		speed={1500}*/}
-			{/*	//freeMode={true}*/}
-			{/*	//effect={"fade"}*/}
-			{/*		watchSlidesProgress= {true}*/}
-			{/*		autoplay={{*/}
-			{/*			delay: 2800,*/}
-			{/*		}}*/}
-			{/*		modules={[ EffectFade, Autoplay,Pagination]}*/}
-			{/*>*/}
-			{/*	{homeData2.map((data, index)=>(*/}
-			{/*		<SwiperSlide key={index}>*/}
-			{/*			<div className="books-card">*/}
-			{/*				<div className="dz-media">*/}
-			{/*					<img src={data.image} alt="book" />*/}
-			{/*				</div>*/}
-			{/*				<div className="dz-content">*/}
-			{/*					<h5 className="title mb-0">{data.title}</h5>*/}
-			{/*					<div className="dz-meta">*/}
-			{/*						<ul>*/}
-			{/*							<li>by Napoleon Hill</li>*/}
-			{/*						</ul>*/}
-			{/*					</div>*/}
-			{/*					<div className="book-footer">*/}
-			{/*						<div className="price">*/}
-			{/*							<span className="price-num">${data.price}</span>*/}
-			{/*						</div>*/}
-			{/*						<div className="rate">*/}
-			{/*							<i className="flaticon-star text-yellow"></i>*/}
-			{/*							<i className="flaticon-star text-yellow"></i>*/}
-			{/*							<i className="flaticon-star text-yellow"></i>*/}
-			{/*							<i className="flaticon-star text-yellow"></i>*/}
-			{/*							<i className="flaticon-star text-yellow"></i>*/}
-			{/*						</div>*/}
-			{/*					</div>*/}
-			{/*				</div>*/}
-			{/*			</div>*/}
-			{/*		</SwiperSlide>*/}
-			{/*	))}*/}
-			{/*</Swiper>*/}
-
 		</>
 	)
 }

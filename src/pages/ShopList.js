@@ -24,43 +24,11 @@ import {likeOrUnlikeProduct} from "../services/user.service";
 import {toast} from "react-toastify";
 import Pagination from "../components/Home/Pagination";
 import {useCategories} from "../contexts/CategoryContext";
+import useAddToCart from "../custome-hooks/useAddToCart";
+import {calculateStarRating} from "../utils/renderStarRatingUtils";
+import {calculateMinAndMaxPrice} from "../utils/productVariantUtils";
+import SelectVariantModal from "../components/Home/SelectVariantModal";
 
-const lableBlogData = [
-    {name:'Architecture'},
-    {name:'Art'},
-    {name:'Action'},
-    {name:'Biography & Autobiography'},
-    {name:'Body, Mind & Spirit'},
-    {name:'Business & Economics'},    
-    {name:'Children Fiction'},
-    {name:'Children Non-Fiction'},
-    {name:'Comics & Graphic Novels'},
-    {name:'Cooking'},
-    {name:'Crafts & Hobbies'},
-    {name:'Design'},
-    {name:'Drama'},
-    {name:'Education'},
-    {name:'Family & Relationships'},
-    {name:'Fiction'},
-    {name:'Foreign Language Study'},
-    {name:'Games'},
-    {name:'Gardening'},
-    {name:'Health & Fitness'},
-    {name:'History'},
-    {name:'House & Home'},
-    {name:'Humor'},
-    {name:'Literary Collections'},
-    {name:'Mathematics'}
-];
-
-const cardDetials = [
-   {image:book12, title:'The Missadventure', subtitle1:'DRAMA',subtitle2:'HORROR', price1:'23.00', price2:'52.00' },
-   {image:book16, title:'Thunder Stunt', subtitle1:'ADVANTURE',subtitle2:'SCIENCE', price1:'54.78', price2:'70.00' },
-   {image:book14, title:'A Heavy Lift', subtitle1:'RACING',subtitle2:'DRAMA', price1:'25.18', price2:'68.00' },
-   {image:book15, title:'Terrible Madness', subtitle1:'SPORTS',subtitle2:'GAME', price1:'25.30', price2:'38.00' },
-   {image:book11, title:'ALL GOOD NEWS', subtitle1:'DRAMA',subtitle2:'COMEDY', price1:'40.78', price2:'68.00' },
-   {image:book10, title:'Emily The Back', subtitle1:'DRAMA',subtitle2:'SIRIAL', price1:'54.78', price2:'63.00' }, 
-];
 
 function ShopList(){
     const { categoryId, searchString } = useParams();
@@ -68,13 +36,16 @@ function ShopList(){
     const categories = useCategories();
 
     const {loadingDispatch} = useLoading();
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
 
     const { likedProductIds, fetchLikedProducts  } = useUser();
+
+    const [selectVariantModalShow, setSelectVariantModalShow] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         fetchSearchedProducts();
@@ -145,23 +116,6 @@ function ShopList(){
         }
     }
 
-    function calculateStarRating(rating) {
-        const roundedRating = Math.round(rating * 2) / 2; // Round to the nearest 0.5
-        const starRating = [];
-
-        for (let i = 1; i <= 5; i++) {
-            if (roundedRating >= i) {
-                starRating.push(<li key={i}><i className="fas fa-star text-yellow"></i></li>);
-            } else if (roundedRating === i - 0.5) {
-                starRating.push(<li key={i}><i className="fas fa-star-half-alt text-yellow"></i></li>);
-            } else {
-                starRating.push(<li key={i}><i className="far fa-star text-yellow"></i></li>);
-            }
-        }
-
-        return starRating;
-    }
-
     function highlightSearchString(text, searchString) {
         if (!searchString) {
             return text; // Return the original text if searchString is empty.
@@ -185,6 +139,7 @@ function ShopList(){
     const [selectBtn, setSelectBtn] = useState('Newest');
     return(
         <>
+            <SelectVariantModal product={selectedProduct} show={selectVariantModalShow} onHide={() => setSelectVariantModalShow(false)} />
             <div className="page-content bg-grey">
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
@@ -216,16 +171,25 @@ function ShopList(){
                                                     </ul>
                                                     <h4 className="title mb-0"><Link to={"books-list-view-sidebar"}>{highlightSearchString(product.name, searchString)}</Link></h4>
                                                 </div>
-                                                {product.discountAmount ?
+                                                {product.hasVariants ? (
                                                     <div className="price">
-                                                        <span className="price-num text-primary">{formatCurrency(product.price - product.discountAmount)}</span>
-                                                        <del>{formatCurrency(product.price)}</del>
+                                                        <span className="price-num text-primary">
+                                                            {formatCurrency(calculateMinAndMaxPrice(product).minPrice)}
+                                                            {` - `}
+                                                            {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
+                                                        </span>
                                                     </div>
-                                                    :
-                                                    <div className="price">
-                                                        <span className="price-num text-primary">{formatCurrency(product.price)}</span>
-                                                    </div>
-                                                }
+                                                ) : (
+                                                    product.discountAmount ?
+                                                        <div className="price">
+                                                            <span className="price-num text-primary">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                            <del>{formatCurrency(product.price)}</del>
+                                                        </div>
+                                                        :
+                                                        <div className="price">
+                                                            <span className="price-num text-primary">{formatCurrency(product.price)}</span>
+                                                        </div>
+                                                )}
                                             </div>
 
                                             <div className="dz-body">
@@ -255,13 +219,24 @@ function ShopList(){
                                                         <li><span>Year</span>{product.publishYear}</li>
                                                     </ul>
                                                     <div className="d-flex">
-                                                        <Link
-                                                            className="btn btn-secondary btnhover btnhover2"
-                                                            onClick={() => handleAddToCart(product)}
-                                                        >
-                                                            <i className="flaticon-shopping-cart-1 m-r10"></i>
-                                                            Add to cart
-                                                        </Link>
+                                                        {product.hasVariants ? (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={async () => {
+                                                                    await setSelectedProduct(product);
+                                                                    setSelectVariantModalShow(true);
+                                                                }}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                onClick={() => handleAddToCart(product, 1)}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                                            </button>
+                                                        )}
                                                         <div className="bookmark-btn style-1">
                                                             <input
                                                                 className="form-check-input"

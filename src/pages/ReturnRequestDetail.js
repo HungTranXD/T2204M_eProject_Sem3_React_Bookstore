@@ -312,7 +312,12 @@ function ReturnRequestDetail(){
                                                             {request.returnProducts.map((product)=>(
                                                                 <tr key={product.productId}>
                                                                     <td className="product-item-img"><img src={addAutoWidthTransformation(product.productThumbnail)} alt="" /></td>
-                                                                    <td className="product-item-name">{product.productName}</td>
+                                                                    <td className="product-item-name">
+                                                                        {product.productName}
+                                                                        {product.productVariantAttributeValues.length > 0 &&
+                                                                            <p className="font-13 fw-normal text-primary my-0">{product.productVariantAttributeValues.map(attr => attr.attributeName + ": " + attr.attributeValue).join(' | ')}</p>
+                                                                        }
+                                                                    </td>
                                                                     <td className="product-item-price">
                                                                         {formatCurrency(product.price)}
                                                                     </td>

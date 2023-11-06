@@ -251,7 +251,8 @@ function ShopCheckout() {
                         paymentMethod: formData.paymentMethod,
                         userId: user ? user.id : null,
                         orderProducts: cartState.cartItems.map((item) => ({
-                            productId: item.id,
+                            productId: item.productId ? item.productId : item.id,
+                            productVariantId: item.productId ? item.id : null,
                             quantity: item.buy_quantity,
                             price: item.price - item.discountAmount,
                             vatRate: item.vatRate
@@ -309,9 +310,11 @@ function ShopCheckout() {
                         paymentMethod: formData.paymentMethod,
                         userId: registerData.user.id,
                         orderProducts: cartState.cartItems.map((item) => ({
-                            productId: item.id,
+                            productId: item.productId ? item.productId : item.id,
+                            productVariantId: item.productId ? item.id : null,
                             quantity: item.buy_quantity,
                             price: item.price - item.discountAmount,
+                            vatRate: item.vatRate
                         })),
                     };
                     console.log("orderData", orderData);
@@ -686,10 +689,9 @@ function ShopCheckout() {
                                                             <span
                                                                 className="fw-normal font-12"> (x{item.buy_quantity})</span>
                                                         </div>
-                                                        <div className="font-12">{item.categories.map((c, index) =>
-                                                            <Link key={c.id} to={"#"}
-                                                                  className="me-1 text-uppercase">{c.name}{index < item.categories.length - 1 ? ", " : " "}</Link>
-                                                        )}</div>
+                                                        {item.productVariantAttributeValues &&
+                                                            <p className="font-13 fw-normal text-primary my-0">{item.productVariantAttributeValues.map(attr => attr.attributeValue).join(' - ')}</p>
+                                                        }
                                                     </td>
                                                     <td className="product-price text-center">{formatCurrency(item.price - (item.discountAmount ? item.discountAmount : 0))}</td>
                                                     <td className="product-item-totle text-center"
@@ -887,6 +889,9 @@ function ShopCheckout() {
                                                                 <span
                                                                     className="fw-normal font-12"> (x{item.quantity})</span>
                                                             </div>
+                                                            {item.productVariantAttributeValues &&
+                                                                <p className="font-13 fw-normal text-primary my-0">{item.productVariantAttributeValues.map(attr => attr.attributeValue).join(' - ')}</p>
+                                                            }
                                                         </td>
                                                         <td className="product-price text-center">{formatCurrency(item.price)}</td>
                                                         <td className="product-item-totle text-center"

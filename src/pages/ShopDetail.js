@@ -17,6 +17,8 @@ import profile1 from './../assets/images/profile1.jpg';
 import book15 from './../assets/images/books/grid/book15.jpg';
 import book3 from './../assets/images/books/grid/book3.jpg';
 import book5 from './../assets/images/books/grid/book5.jpg';
+import avatar from "./../assets/images/avatar.png";
+
 import {useLoading} from "../contexts/LoadingContext";
 import {getProductDetail, getRelatedProducts} from "../services/product.service";
 import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
@@ -26,51 +28,14 @@ import {toast} from "react-toastify";
 import {useUser} from "../contexts/UserContext";
 import {getLikedProducts, likeOrUnlikeProduct} from "../services/user.service";
 import formatDate from "../utils/datetimeFormatter";
+import useAddToCart from "../custome-hooks/useAddToCart";
+import useVariantSelection from "../custome-hooks/useVariantSelection";
 
-const tableDetail = [
-    {tablehead:'Book Title', tabledata:'Think and Grow Rich'},
-    {tablehead:'Author', tabledata:'Napoleon Rich'},
-    {tablehead:'ISBN', tabledata:'121341381648 (ISBN13: 121341381648)'},
-    {tablehead:'Ediiton Language', tabledata:'English'},
-    {tablehead:'Book Format', tabledata:'Paperback, 450 Pages'},
-    {tablehead:'Date Published', tabledata:'August 10th 2019'},
-    {tablehead:'Publisher', tabledata:'Wepress Inc.'},
-    {tablehead:'Pages', tabledata:'520'},
-    {tablehead:'Lesson', tabledata:'7'},
-    {tablehead:'Topic', tabledata:'360'},
-];
 
-const relatedBook = [
-    {image:book15, title:'Terrible Madness' },
-    {image:book3,  title:'Battle Drive' },
-    {image:book5,  title:'Terrible Madness' },
-];
-
-function CommentBlog({title, image}){
-    return(
-        <>
-            <div className="comment-body" id="div-comment-3">
-                <div className="comment-author vcard">
-                    <img src={image} alt="" className="avatar"/>
-                    <cite className="fn">{title}</cite> <span className="says">says:</span>
-                    <div className="comment-meta">
-                        <Link to={"#"}>December 28, 2022 at 6:14 am</Link>
-                    </div>
-                </div>
-                <div className="comment-content dlab-page-text">
-                    <p>Donec suscipit porta lorem eget condimentum. Morbi vitae mauris in leo venenatis varius. Aliquam nunc enim, egestas ac dui in, aliquam vulputate erat.</p>
-                </div>
-                <div className="reply">
-                    <Link to={"#"} className="comment-reply-link"><i className="fa fa-reply"></i> Reply</Link>
-                </div>
-            </div>
-        </>
-    )
-}
 
 function ShopDetail(){
     const [buy_quantity, setBuy_quantity] = useState(1);
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
 
     const { loadingDispatch } = useLoading();
     const { slug } = useParams();
@@ -116,24 +81,6 @@ function ShopDetail(){
         }
     }
 
-    const handleAddToCart = (product, buy_quantity) => {
-        if (buy_quantity <= 0 || buy_quantity > product.quantity) {
-            toast.error('Not enough quantity!');
-            return;
-        }
-
-        loadingDispatch({type: 'START_LOADING'});
-        // Create a new product object with the selectedGift and buy_quantity
-        const productToAdd = {
-            ...product,
-            buy_quantity: buy_quantity,
-        };
-        // Dispatch the ADD_TO_CART action with the product
-        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-        toast.success('Add to Cart!');
-        loadingDispatch({type: 'STOP_LOADING'});
-    };
-
     function calculateStarRating(rating) {
         const roundedRating = Math.round(rating * 2) / 2; // Round to the nearest 0.5
         const starRating = [];
@@ -164,233 +111,12 @@ function ShopDetail(){
         }
     }
 
-
-
-    // -------- THIS IS THE TEST (DELETE AFTER TEST) ---------
-    const productDetail = {
-        "id": 1,
-        "status": 1,
-        "name": "Thunder Stunt",
-        "slug": "thunder-stunt",
-        "price": null,
-        "vatRate": null,
-        "discountAmount": null,
-        "quantity": null,
-        "createdAt": "2023-11-02T15:18:46.86",
-        "updatedAt": null,
-        "productImages": [],
-        "rating": 4.5,
-        "soldQuantity": 14,
-        "hasVariants": true,
-        "productVariants": [
-            {
-                "id": 1,
-                "productId": 1,
-                "price": 70,
-                "vatRate": 10,
-                "discountAmount": 15.22,
-                "quantity": 123,
-                "createdAt": "2023-11-02T15:18:46.867",
-                "updatedAt": null,
-                "productVariantAttributeValues": [
-                    {
-                        "id": 1,
-                        "productVariantId": 1,
-                        "attributeId": 1,
-                        "attributeName": "Format",
-                        "attributeValueId": 1,
-                        "attributeValue": "Hardcover"
-                    },
-                    {
-                        "id": 2,
-                        "productVariantId": 1,
-                        "attributeId": 2,
-                        "attributeName": "Condition",
-                        "attributeValueId": 4,
-                        "attributeValue": "New"
-                    }
-                ]
-            },
-            {
-                "id": 2,
-                "productId": 1,
-                "price": 60,
-                "vatRate": 8,
-                "discountAmount": 5.74,
-                "quantity": 56,
-                "createdAt": "2023-11-02T15:18:46.867",
-                "updatedAt": null,
-                "productVariantAttributeValues": [
-                    {
-                        "id": 3,
-                        "productVariantId": 2,
-                        "attributeId": 1,
-                        "attributeName": "Format",
-                        "attributeValueId": 1,
-                        "attributeValue": "Hardcover"
-                    },
-                    {
-                        "id": 4,
-                        "productVariantId": 2,
-                        "attributeId": 2,
-                        "attributeName": "Condition",
-                        "attributeValueId": 5,
-                        "attributeValue": "Like New"
-                    }
-                ]
-            },
-            {
-                "id": 3,
-                "productId": 1,
-                "price": 45,
-                "vatRate": 10,
-                "discountAmount": 9.31,
-                "quantity": 83,
-                "createdAt": "2023-11-02T15:18:46.867",
-                "updatedAt": null,
-                "productVariantAttributeValues": [
-                    {
-                        "id": 5,
-                        "productVariantId": 3,
-                        "attributeId": 1,
-                        "attributeName": "Format",
-                        "attributeValueId": 2,
-                        "attributeValue": "Paperback"
-                    },
-                    {
-                        "id": 6,
-                        "productVariantId": 3,
-                        "attributeId": 2,
-                        "attributeName": "Condition",
-                        "attributeValueId": 4,
-                        "attributeValue": "New"
-                    }
-                ]
-            },
-            {
-                "id": 4,
-                "productId": 1,
-                "price": 35,
-                "vatRate": 8,
-                "discountAmount": 2.56,
-                "quantity": 12,
-                "createdAt": "2023-11-02T15:18:46.867",
-                "updatedAt": null,
-                "productVariantAttributeValues": [
-                    {
-                        "id": 7,
-                        "productVariantId": 4,
-                        "attributeId": 1,
-                        "attributeName": "Format",
-                        "attributeValueId": 2,
-                        "attributeValue": "Paperback"
-                    },
-                    {
-                        "id": 8,
-                        "productVariantId": 4,
-                        "attributeId": 2,
-                        "attributeName": "Condition",
-                        "attributeValueId": 5,
-                        "attributeValue": "Like New"
-                    }
-                ]
-            }
-        ],
-        "productAttributes": [
-            {
-                "id": 1,
-                "name": "Format",
-                "attributeValues": [
-                    {
-                        "id": 1,
-                        "value": "Hardcover",
-                        "attributeId": 1
-                    },
-                    {
-                        "id": 2,
-                        "value": "Paperback",
-                        "attributeId": 1
-                    }
-                ]
-            },
-            {
-                "id": 2,
-                "name": "Condition",
-                "attributeValues": [
-                    {
-                        "id": 4,
-                        "value": "New",
-                        "attributeId": 2
-                    },
-                    {
-                        "id": 5,
-                        "value": "Like New",
-                        "attributeId": 2
-                    }
-                ]
-            }
-        ]
-    }
-
-    const [selectedAttributes, setSelectedAttributes] = useState({});
-    const [selectedVariant, setSelectedVariant] = useState(null);
-
-    const handleAttributeChange = (attributeId, attributeValueId) => {
-        setSelectedAttributes({
-            ...selectedAttributes,
-            [attributeId]: attributeValueId,
-        });
-    };
-
-    const findVariant = () => {
-        const result = productDetail.productVariants.find((variant) =>
-            variant.productVariantAttributeValues.every((attrValue) =>
-                selectedAttributes[attrValue.attributeId] === attrValue.attributeValueId
-            )
-        );
-        setSelectedVariant(result);
-    };
-
-    // A method to set the default selected attributes (if needed)
-    const setDefaultSelectedAttributes = () => {
-        if (productDetail.productVariants.length > 0) {
-            const initialAttributes = {};
-
-            // Use the attributes of the first variant
-            const firstVariant = productDetail.productVariants[0];
-            firstVariant.productVariantAttributeValues.forEach((attrValue) => {
-                initialAttributes[attrValue.attributeId] = attrValue.attributeValueId;
-            });
-
-            setSelectedAttributes(initialAttributes);
-        }
-    };
-
-    // Call setDefaultSelectedAttributes when the component is mounted
-    useEffect(() => {
-        setDefaultSelectedAttributes();
-    }, []);
-
-    // Call findVariant whenever selectedAttributes change
-    useEffect(() => {
-        findVariant();
-    }, [selectedAttributes]);
+    // -------------------------- Handle variants selection --------------------------
+    const { selectedAttributes, selectedVariant, handleAttributeChange } = useVariantSelection(product);
 
 
     return(
         <>
-            {/*BEGIN TEST SECTION*/}
-            <div className="container">
-                <h1>{productDetail.name}</h1>
-                <p>Price: {selectedVariant ? selectedVariant.price : "Select a variant"}</p>
-                <p>Quantity: {selectedVariant ? selectedVariant.quantity : "Select a variant"}</p>
-
-
-            </div>
-            {/*END TEST SECTION*/}
-
-
-
             <div className="page-content bg-grey">
                 <section className="content-inner-1">
                     <div className="container">
@@ -403,7 +129,17 @@ function ShopDetail(){
                                     </div>
                                     <div className="dz-content">
                                         <div className="dz-header">
-                                            <h3 className="title">{product.name}</h3>
+                                            <h3 className="title mb-0">{product.name}</h3>
+                                            <ul className="dz-tags text-uppercase mb-1" style={{overflowX: "hidden", whiteSpace: "nowrap", display: "block" }}>
+                                                {product.categories.map((category, index) =>
+                                                    <li
+                                                        key={category.id}
+                                                        className="d-inline-block m-r5"
+                                                    >
+                                                        <Link>{category.name}{index < product.categories.length - 1 && ","}</Link>
+                                                    </li>
+                                                )}
+                                            </ul>
                                             <div className="shop-item-rating">
                                                 <div
                                                     className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
@@ -450,7 +186,8 @@ function ShopDetail(){
                                             <p className="text-1">{product.description}</p>
                                             {/*<p className="text-2"></p>*/}
 
-                                            {productDetail.productAttributes.map((attribute) => (
+                                            {/* --- Display variant if product has variants ---- */}
+                                            {product.hasVariants && product.productAttributes.map((attribute) => (
                                                 <div key={attribute.id} className="mb-3">
                                                     <p className="mb-1 fw-bold">{attribute.name}</p>
                                                     {attribute.attributeValues.map((value) => (
@@ -471,18 +208,30 @@ function ShopDetail(){
                                             ))}
 
                                             <div className="book-footer">
-                                                {product.discountAmount ?
-                                                    <div className="price">
-                                                        <h5>{formatCurrency(product.price - product.discountAmount)}</h5>
-                                                        <p className="p-lr10">{formatCurrency(product.price)}</p>
-                                                    </div>
-                                                :
-                                                    <div className="price">
-                                                        <h5>{formatCurrency(product.price)}</h5>
-                                                    </div>
-                                                }
+                                                {product.hasVariants && selectedVariant ? (
+                                                    selectedVariant.discountAmount ?
+                                                        <div className="price">
+                                                            <h5>{formatCurrency(selectedVariant.price - selectedVariant.discountAmount)}</h5>
+                                                            <p className="p-lr10">{formatCurrency(selectedVariant.price)}</p>
+                                                        </div>
+                                                        :
+                                                        <div className="price">
+                                                            <h5>{formatCurrency(selectedVariant.price)}</h5>
+                                                        </div>
+                                                ) : (
+                                                    product.discountAmount ?
+                                                        <div className="price">
+                                                            <h5>{formatCurrency(product.price - product.discountAmount)}</h5>
+                                                            <p className="p-lr10">{formatCurrency(product.price)}</p>
+                                                        </div>
+                                                        :
+                                                        <div className="price">
+                                                            <h5>{formatCurrency(product.price)}</h5>
+                                                        </div>
+                                                )}
+
                                                 <div className="product-num">
-                                                    {product.quantity > 0 &&
+                                                    {!product.hasVariants && product.quantity > 0 &&
                                                         <>
                                                         <div className="quantity btn-quantity style-1 me-3">
                                                             <button
@@ -521,6 +270,45 @@ function ShopDetail(){
                                                         </Link>
                                                         </>
                                                     }
+                                                    {product.hasVariants && selectedVariant && selectedVariant.quantity > 0 &&
+                                                        <>
+                                                            <div className="quantity btn-quantity style-1 me-3">
+                                                                <button
+                                                                    className="btn btn-plus"
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        if (buy_quantity < product.quantity) {
+                                                                            setBuy_quantity(buy_quantity + 1);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <i className="ti-plus"></i>
+                                                                </button>
+                                                                <input
+                                                                    className="quantity-input"
+                                                                    type="text"
+                                                                    value={buy_quantity}
+                                                                    name="demo_vertical2"
+                                                                />
+                                                                <button
+                                                                    className="btn btn-minus"
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        if (buy_quantity > 1) {
+                                                                            setBuy_quantity(buy_quantity - 1);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <i className="ti-minus"></i>
+                                                                </button>
+                                                            </div>
+                                                            <Link onClick={() => handleAddToCart(selectedVariant, buy_quantity)}
+                                                                  className="btn btn-primary btnhover btnhover2"><i
+                                                                className="flaticon-shopping-cart-1"></i>
+                                                                <span>Add to cart</span>
+                                                            </Link>
+                                                        </>
+                                                    }
                                                     <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input
                                                             className="form-check-input"
@@ -540,25 +328,26 @@ function ShopDetail(){
                                             <table className="table table-borderless mt-5" style={{fontSize: "0.9rem"}}>
                                                 <tbody>
                                                 <tr className="tags border-0" >
-                                                    <th className="px-0 py-1 fw-normal">Categories: </th>
+                                                    <th className="px-0 py-1 fw-normal">VAT: </th>
                                                     <td className="px-0 py-1">
-                                                        {product.categories.map((c, index) =>
-                                                            <Link key={c.id} to={"#"} className="me-1 text-uppercase">{c.name}{index < product.categories.length-1 ? ", " : " "}</Link>
+                                                        {product.hasVariants ? (
+                                                            selectedVariant ? selectedVariant.vatRate + "% (Not include in price)" : "N/A"
+                                                        ) : (
+                                                            product.vatRate + "% (Not include in price)"
                                                         )}
                                                     </td>
                                                 </tr>
                                                 <tr className="tags border-0" >
                                                     <th className="px-0 py-1 fw-normal">Stock: </th>
                                                     <td className="px-0 py-1">
-                                                        {product.quantity} product(s)
+                                                        {product.hasVariants ? (
+                                                            selectedVariant && selectedVariant.quantity > 0 ? selectedVariant.quantity + " product(s) in stock" : "(Out of stock)"
+                                                        ) : (
+                                                            product.quantity > 0 ? product.quantity + " product(s) in stock" : "(Out of stock)"
+                                                        )}
                                                     </td>
                                                 </tr>
-                                                <tr className="tags border-0" >
-                                                    <th className="px-0 py-1 fw-normal">VAT: </th>
-                                                    <td className="px-0 py-1">
-                                                        {product.vatRate} %
-                                                    </td>
-                                                </tr>
+
                                                 <tr className="tags border-0" >
                                                     <th className="px-0 py-1 fw-normal">Tags: </th>
                                                     <td className="px-0 py-1">
@@ -602,7 +391,7 @@ function ShopDetail(){
                                                                                 {calculateStarRating(parseFloat(review.rating.toFixed(1)))}
                                                                             </ul>
                                                                             <div className="comment-author vcard">
-                                                                                <img src={review.avatar} alt="" className="avatar"/>
+                                                                                <img src={review.avatar ? addAutoWidthTransformation(review.avatar) : avatar} alt="" className="avatar border"/>
                                                                                 <cite className="fn mb-1">
                                                                                     {review.fname} {review.lname}
                                                                                     <span className="font-12 text-primary fw-normal m-l10">at {formatDate(review.createdAt).formattedDate}</span>

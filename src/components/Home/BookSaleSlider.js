@@ -150,16 +150,22 @@ function BookSaleSlider() {
                                     <div className="rate">
                                         <i className="flaticon-star"></i> {product.rating.toFixed(1)}
                                     </div>
-                                    {product.discountAmount ?
+                                    {product.hasVariants ? (
                                         <div className="price">
-                                            <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
-                                            <del>{formatCurrency(product.price)}</del>
+                                            <span className="price-num">{formatCurrency(calculateMinAndMaxPrice(product).minPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}</span>
                                         </div>
-                                        :
-                                        <div className="price">
-                                            <span className="price-num">{formatCurrency(product.price)}</span>
-                                        </div>
-                                    }
+                                    ) : (
+                                        product.discountAmount ?
+                                            <div className="price">
+                                                <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                <del>{formatCurrency(product.price)}</del>
+                                            </div>
+                                            :
+                                            <div className="price">
+                                                <span className="price-num">{formatCurrency(product.price)}</span>
+                                            </div>
+                                    )}
+
                                 </div>
                             </div>
                         </div>

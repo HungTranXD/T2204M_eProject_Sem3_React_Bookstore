@@ -72,7 +72,7 @@ function Header(){
     }
 	// Menu dropdown list End
 
-	// ---- Cart
+	// ---- Cart ----
 	const { cartState, cartDispatch } = useCart();
 	const { cartItems } = cartState;
 
@@ -88,7 +88,7 @@ function Header(){
 		return cartState.cartItems.reduce((total, product) => total + calculateSubtotal(product), 0);
 	};
 
-	// ---- Authentication
+	// ---- Authentication ----
 	const { authState, authDispatch } = useAuth();
 	const { user, likedProducts, fetchLikedProducts } = useUser();
 
@@ -151,7 +151,12 @@ function Header(){
 														</Link>
 													</div>
 													<div className="media-body">
-														<h6 className="dz-title"><Link to={"shop-detail"} className="media-heading">{item.name} <span className="font-14 text-primary fw-normal">x{item.buy_quantity}</span></Link></h6>
+														<h6 className="dz-title">
+															<Link to={"shop-detail"} className="media-heading">{item.name} <span className="font-14 text-primary fw-normal">x{item.buy_quantity}</span></Link>
+															{item.productVariantAttributeValues &&
+																<p className="font-13 fw-normal text-info my-0">{item.productVariantAttributeValues.map(attr => attr.attributeValue).join(' - ')}</p>
+															}
+														</h6>
 														{item.discountAmount ?
 															<span className="dz-price">
 															{formatCurrency(item.price - item.discountAmount)}

@@ -17,6 +17,8 @@ import NewsLetter from './../components/NewsLetter';
 
 //element
 import CounterSection from './../elements/CounterSection';
+import {useState} from "react";
+import SelectVariantModal from "../components/Home/SelectVariantModal";
 
 const iconBlog = [
     {title:'Quick Delivery', iconClass:'flaticon-power'}, 
@@ -25,9 +27,14 @@ const iconBlog = [
     {title:'Return Guarantee', iconClass:'flaticon-star'}, 
 ];
 
-function Index1(){	
+function Index1(){
+
+	const [selectVariantModalShow, setSelectVariantModalShow] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState(null);
+
 	return(
 		<>
+			<SelectVariantModal product={selectedProduct} show={selectVariantModalShow} onHide={() => setSelectVariantModalShow(false)} />
 			<div className="page-content bg-white">
 				<div className="main-slider style-1"> 
 					<HomeMainSlider />
@@ -43,7 +50,7 @@ function Index1(){
 							<h2 className="title">Newest In Store</h2>
 							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris</p>
 						</div>
-						<RecomendedSlider />
+						<RecomendedSlider setSelectedProduct={setSelectedProduct} setSelectVariantModalShow={setSelectVariantModalShow}/>
 					</div>
 				</section>		
 
@@ -80,16 +87,16 @@ function Index1(){
 						</div>
 					</div>
 					<div className="container">		
-						<FeaturedSlider />
+						<FeaturedSlider setSelectedProduct={setSelectedProduct} setSelectVariantModalShow={setSelectVariantModalShow}/>
 					</div>
 				</section>
 				<section className="content-inner-2">
 					<div className="container">
-						<OfferSlider />
+						<OfferSlider setSelectedProduct={setSelectedProduct} setSelectVariantModalShow={setSelectVariantModalShow}/>
 					</div>
 				</section>	
 				<section className="content-inner-2 testimonial-wrapper">
-					<TestimonialSlider />	
+					<TestimonialSlider />
 				</section>	
 				<section className="content-inner-2">
 					<div className="container">

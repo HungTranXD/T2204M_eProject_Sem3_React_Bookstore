@@ -11,13 +11,16 @@ import {addAutoWidthTransformation} from "../utils/cloudinaryUtils";
 import {formatCurrency} from "../utils/currencyFormatter";
 import {useCart} from "../contexts/CartContext";
 import {toast} from "react-toastify";
+import useAddToCart from "../custome-hooks/useAddToCart";
+import {calculateMinAndMaxPrice} from "../utils/productVariantUtils";
+import SelectVariantModal from "../components/Home/SelectVariantModal";
 
 
 
 function Wishlist(){
     const { loadingDispatch } = useLoading();
     const { user, likedProducts, setLikedProducts, fetchLikedProducts } = useUser();
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
 
     useEffect(() => {
         fetchLikedProducts();
@@ -43,24 +46,6 @@ function Wishlist(){
         }
     };
 
-    const handleAddToCart = (product) => {
-        if (product.quantity === 0) {
-            toast.error('Out of Stock!');
-            return;
-        }
-
-        loadingDispatch({type: 'START_LOADING'});
-        // Create a new product object with the selectedGift and buy_quantity
-        const productToAdd = {
-            ...product,
-            buy_quantity: product.buy_quantity,
-        };
-        // Dispatch the ADD_TO_CART action with the product
-        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-        toast.success('Add to Cart!');
-        loadingDispatch({type: 'STOP_LOADING'});
-    };
-
     const handleRemoveClick = async (id) => {
         try {
             loadingDispatch({type: 'START_LOADING'});
@@ -74,8 +59,12 @@ function Wishlist(){
         }
     }
 
+    const [selectVariantModalShow, setSelectVariantModalShow] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
     return(
         <>
+            <SelectVariantModal product={selectedProduct} show={selectVariantModalShow} onHide={() => setSelectVariantModalShow(false)} />
             <div className="page-content">
                 <PageTitle  parentPage="Shop" childPage="Wishlist" />
                 <section className="content-inner-1">
@@ -101,50 +90,77 @@ function Wishlist(){
                                                 <tr key={product.id}>
                                                     <td className="product-item-img"><img src={addAutoWidthTransformation(product.thumbnail)} alt="" /></td>
                                                     <td className="product-item-name">{product.name}</td>
-                                                    {product.discountAmount ?
+                                                    {product.hasVariants ? (
                                                         <td className="product-item-price">
-                                                            {formatCurrency(product.price - product.discountAmount)}
-                                                            <del className="text-primary m-l10">{formatCurrency(product.price)}</del>
+                                                            {formatCurrency(calculateMinAndMaxPrice(product).minPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
                                                         </td>
-                                                    :
-                                                        <td className="product-item-price">
-                                                            {formatCurrency(product.price)}
-                                                        </td>
-                                                    }
+                                                    ) : (
+                                                        product.discountAmount ?
+                                                            <td className="product-item-price">
+                                                                {formatCurrency(product.price - product.discountAmount)}
+                                                                <del className="text-primary m-l10">{formatCurrency(product.price)}</del>
+                                                            </td>
+                                                            :
+                                                            <td className="product-item-price">
+                                                                {formatCurrency(product.price)}
+                                                            </td>
+                                                    )}
+
                                                     <td className="product-item-quantity">
-                                                        {product.quantity > 0 ?
-                                                            <div className="quantity btn-quantity style-1 me-3">
-                                                                <button
-                                                                    className="btn btn-plus"
-                                                                    type="button"
-                                                                    onClick={() => increaseQuantity(product)}
-                                                                >
-                                                                    <i className="ti-plus"></i>
-                                                                </button>
-                                                                <input type="text" className="quantity-input" value={product.buy_quantity} />
-                                                                <button
-                                                                    className="btn btn-minus "
-                                                                    type="button"
-                                                                    onClick={() => decreaseQuantity(product)}
-                                                                >
-                                                                    <i className="ti-minus"></i>
-                                                                </button>
-                                                            </div>
-                                                        :
-                                                            <div>Out of stock</div>
-                                                        }
+                                                        {product.hasVariants ? (
+                                                            <Link
+                                                                to={`/shop-detail/${product.slug}`}
+                                                                className="btn btn-outline-primary btnhover"
+                                                            >
+                                                                See Detail
+                                                            </Link>
+                                                        ) : (
+                                                            product.quantity > 0 ?
+                                                                <div className="quantity btn-quantity style-1 me-3">
+                                                                    <button
+                                                                        className="btn btn-plus"
+                                                                        type="button"
+                                                                        onClick={() => increaseQuantity(product)}
+                                                                    >
+                                                                        <i className="ti-plus"></i>
+                                                                    </button>
+                                                                    <input type="text" className="quantity-input" value={product.buy_quantity} />
+                                                                    <button
+                                                                        className="btn btn-minus "
+                                                                        type="button"
+                                                                        onClick={() => decreaseQuantity(product)}
+                                                                    >
+                                                                        <i className="ti-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                                :
+                                                                <div>Out of stock</div>
+                                                        )}
+
                                                     </td>
                                                     <td className="product-item-totle">
-                                                        {product.quantity > 0 ?
-                                                        <Link
-                                                            className="btn btn-primary btnhover"
-                                                            onClick={() => handleAddToCart(product)}
-                                                        >
-                                                            Add To Cart
-                                                        </Link>
-                                                        :
-                                                            <div>Can not add to cart</div>
-                                                        }
+                                                        {product.hasVariants ? (
+                                                            <button
+                                                                className="btn btn-primary btnhover"
+                                                                onClick={async () => {
+                                                                    await setSelectedProduct(product);
+                                                                    setSelectVariantModalShow(true);
+                                                                }}
+                                                            >
+                                                                Add To Cart
+                                                            </button>
+                                                        ) : (
+                                                            product.quantity > 0 ?
+                                                                <Link
+                                                                    className="btn btn-primary btnhover"
+                                                                    onClick={() => handleAddToCart(product, 1)}
+                                                                >
+                                                                    Add To Cart
+                                                                </Link>
+                                                                :
+                                                                <div>Out of Stocl</div>
+                                                        )}
+
                                                     </td>
                                                     <td className="product-item-close">
                                                         <Link

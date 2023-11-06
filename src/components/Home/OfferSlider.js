@@ -18,6 +18,8 @@ import {getProducts} from "../../services/product.service";
 import {toast} from "react-toastify";
 import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
 import {formatCurrency} from "../../utils/currencyFormatter";
+import useAddToCart from "../../custome-hooks/useAddToCart";
+import {calculateMinAndMaxDiscount, calculateMinAndMaxPrice} from "../../utils/productVariantUtils";
 
 
 
@@ -32,13 +34,13 @@ const dataBlog = [
 	{ image: blog7, title:'REWORK'},
 ]; 
 
-function OfferSlider() {
+function OfferSlider({ setSelectedProduct, setSelectVariantModalShow }) {
 	const navigationPrevRef = React.useRef(null)
 	const navigationNextRef = React.useRef(null)
    // const paginationRef = React.useRef(null)
 
     const {loadingDispatch} = useLoading();
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
@@ -66,25 +68,6 @@ function OfferSlider() {
             loadingDispatch({type: 'STOP_LOADING'});
         }
     }
-
-    const handleAddToCart = (product) => {
-        if (product.quantity === 0) {
-            toast.error('Out of Stock!');
-            return;
-        }
-
-        loadingDispatch({type: 'START_LOADING'});
-        // Create a new product object with the selectedGift and buy_quantity
-        const productToAdd = {
-            ...product,
-            buy_quantity: 1,
-        };
-        // Dispatch the ADD_TO_CART action with the product
-        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-        toast.success('Add to Cart!');
-        loadingDispatch({type: 'STOP_LOADING'});
-    };
-
 
     return (
 		<>
@@ -166,23 +149,39 @@ function OfferSlider() {
                                     {product.description}
                                 </p>
                                 <div className="bookcard-footer">
-                                    <Link
-                                        className="btn btn-primary m-t15 btnhover btnhover2"
-                                        onClick={() => handleAddToCart(product)}
-                                    >
-                                        <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
-                                    </Link>
-                                    <div className="price-details">
-                                        {product.discountAmount ?
-                                            <>
+                                    {product.hasVariants ? (
+                                        <Link
+                                            className="btn btn-primary m-t15 btnhover btnhover2"
+                                            onClick={async () => {
+                                                await setSelectedProduct(product);
+                                                setSelectVariantModalShow(true);
+                                            }}
+                                        >
+                                            <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            className="btn btn-primary m-t15 btnhover btnhover2"
+                                            onClick={() => handleAddToCart(product, 1)}
+                                        >
+                                            <i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart
+                                        </Link>
+                                    )}
+
+                                    {product.hasVariants ? (
+                                        <div className="price-details">
+                                            {formatCurrency(calculateMinAndMaxPrice(product).minPrice)} - {formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}
+                                        </div>
+                                    ) : (
+                                        product.discountAmount ?
+                                            <div className="price-details">
                                                 {formatCurrency(product.price - product.discountAmount)} <del>{formatCurrency(product.price)}</del>
-                                            </>
+                                            </div>
                                             :
-                                            <>
+                                            <div className="price-details">
                                                 {formatCurrency(product.price - product.discountAmount)}
-                                            </>
-                                        }
-                                    </div>
+                                            </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

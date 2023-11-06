@@ -17,6 +17,8 @@ import {getProducts} from "../../services/product.service";
 import {toast} from "react-toastify";
 import {addAutoWidthTransformation} from "../../utils/cloudinaryUtils";
 import {formatCurrency} from "../../utils/currencyFormatter";
+import useAddToCart from "../../custome-hooks/useAddToCart";
+import {calculateMinAndMaxDiscount, calculateMinAndMaxPrice} from "../../utils/productVariantUtils";
 
 
 
@@ -33,13 +35,13 @@ const dataBlog = [
 	{ image: book2, title:'Pushing Clouds'},
 ]; 
 
-function FeaturedSlider() {
+function FeaturedSlider({ setSelectedProduct, setSelectVariantModalShow }) {
 	const navigationPrevRef = React.useRef(null)
 	const navigationNextRef = React.useRef(null)
     const paginationRef = React.useRef(null)
 
     const {loadingDispatch} = useLoading();
-    const { cartDispatch } = useCart();
+    const { handleAddToCart } = useAddToCart();
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
@@ -67,24 +69,6 @@ function FeaturedSlider() {
             loadingDispatch({type: 'STOP_LOADING'});
         }
     }
-
-    const handleAddToCart = (product) => {
-        if (product.quantity === 0) {
-            toast.error('Out of Stock!');
-            return;
-        }
-
-        loadingDispatch({type: 'START_LOADING'});
-        // Create a new product object with the selectedGift and buy_quantity
-        const productToAdd = {
-            ...product,
-            buy_quantity: 1,
-        };
-        // Dispatch the ADD_TO_CART action with the product
-        cartDispatch({ type: 'ADD_TO_CART', payload: { product: productToAdd } });
-        toast.success('Add to Cart!');
-        loadingDispatch({type: 'STOP_LOADING'});
-    };
 
 	return (
 		<>			
@@ -143,23 +127,40 @@ function FeaturedSlider() {
                                 </ul>
                                 <p className="text">{product.description}</p>
                                 <div className="price">
-                                    {product.discountAmount ?
+                                    {product.hasVariants ? (
                                         <div className="price">
-                                            <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
-                                            <del>{formatCurrency(product.price)}</del>
-                                            <span className="badge">{(product.discountAmount * 100/product.price).toFixed(2) }% OFF</span>
+                                            <span className="price-num">{formatCurrency(calculateMinAndMaxPrice(product).minPrice)}-{formatCurrency(calculateMinAndMaxPrice(product).maxPrice)}</span>
+                                            {/*<del>{formatCurrency(product.price)}</del>*/}
+                                            <span className="badge">{formatCurrency(calculateMinAndMaxDiscount(product).minDiscountPercentage)} - {formatCurrency(calculateMinAndMaxDiscount(product).maxDiscountPercentage)}% OFF</span>
                                         </div>
-                                        :
-                                        <div className="price">
-                                            <span className="price-num">{formatCurrency(product.price)}</span>
-                                        </div>
-                                    }
+                                    ) : (
+                                        product.discountAmount ?
+                                            <div className="price">
+                                                <span className="price-num">{formatCurrency(product.price - product.discountAmount)}</span>
+                                                <del>{formatCurrency(product.price)}</del>
+                                                <span className="badge">{(product.discountAmount * 100/product.price).toFixed(2) }% OFF</span>
+                                            </div>
+                                            :
+                                            <div className="price">
+                                                <span className="price-num">{formatCurrency(product.price)}</span>
+                                            </div>
+                                    )}
                                 </div>
                                 <div className="bookcard-footer">
-                                    <Link
-                                        className="btn btn-primary btnhover m-t15 m-r10"
-                                        onClick={() => handleAddToCart(product)}
-                                    >Add to Cart</Link>
+                                    {product.hasVariants ? (
+                                        <Link
+                                            className="btn btn-primary btnhover m-t15 m-r10"
+                                            onClick={async () => {
+                                                await setSelectedProduct(product);
+                                                setSelectVariantModalShow(true);
+                                            }}
+                                        >Add to Cart</Link>
+                                    ) : (
+                                        <Link
+                                            className="btn btn-primary btnhover m-t15 m-r10"
+                                            onClick={() => handleAddToCart(product,1)}
+                                        >Add to Cart</Link>
+                                    )}
                                     <Link to={`/shop-detail/${product.slug}`} className="btn btn-outline-secondary btnhover m-t15">See Details</Link>
                                 </div>
                             </div>

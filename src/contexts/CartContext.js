@@ -13,7 +13,7 @@ const cartReducer = (state, action) => {
                 (item) => item.id === action.payload.product.id
             );
             if (existingItem) {
-                // If the gift exists in the cart, update the buy_quantity
+                // If the product exists in the cart, update the buy_quantity
                 return {
                     ...state,
                     cartItems: state.cartItems.map((item) =>
@@ -24,7 +24,7 @@ const cartReducer = (state, action) => {
                 };
             } else {
                 console.log("not existingItem ");
-                // If the gift doesn't exist in the cart, add it as a new item
+                // If the product doesn't exist in the cart, add it as a new item
                 return {
                     ...state,
                     cartItems: [...state.cartItems, action.payload.product],
